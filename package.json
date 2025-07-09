@@ -2,6 +2,7 @@
   "name": "wibe-test",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://brianjfw.github.io/template",
   "dependencies": {
     "@fontsource/kaushan-script": "^4.5.2",
     "@fontsource/sirin-stencil": "^4.5.2",
@@ -27,7 +28,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "eslintConfig": {
     "extends": [
@@ -46,5 +48,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
   }
 }
