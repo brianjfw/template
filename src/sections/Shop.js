@@ -152,7 +152,7 @@ const Product = ({ img, title = "" }) => {
       transition={{ duration: 0.5 }}
       viewport={{ once: false, amount: 0.3, margin: "0px 0px -100px 0px" }}
     >
-      <img src={img} alt={title} />
+      <img src={img} alt={title} loading="lazy" decoding="async" />
       <h1>{title}</h1>
     </Item>
   );
