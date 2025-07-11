@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import LogoImg from "../logo.png";
+import { FaStar } from "react-icons/fa";
 
 const Container = styled.div`
   position: absolute;
@@ -48,6 +48,19 @@ const Text = styled(motion.span)`
   padding-bottom: 0.5rem;
 `;
 
+const StarIcon = styled(FaStar)`
+  font-size: 4rem;
+  color: ${(props) => props.theme.text};
+
+  @media (max-width: 48em) {
+    font-size: 3rem;
+  }
+
+  @media (max-width: 30em) {
+    font-size: 2.5rem;
+  }
+`;
+
 const textVariants = {
   hidden: {
     opacity: 0,
@@ -86,13 +99,13 @@ const Logo = () => {
   return (
     <Container>
       <Link to="/">
-        <motion.img
+        <motion.div
           variants={imageVariants}
           initial="hidden"
           animate="visible"
-          src={LogoImg}
-          alt="Logo"
-        />
+        >
+          <StarIcon />
+        </motion.div>
       </Link>
     </Container>
   );

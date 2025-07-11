@@ -156,7 +156,7 @@ const Item = styled.div`
 const Product = ({ img, title = "" }) => {
   return (
     <Item>
-      <img src={img} alt={title} loading="lazy" decoding="async" />
+      <img src={img} alt={title} loading="eager" decoding="async" />
       <h2>{title}</h2>
     </Item>
   );

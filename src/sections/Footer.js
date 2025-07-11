@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { FaStar } from "react-icons/fa";
 
-import LogoImg from "../logo.png";
 import { motion } from "framer-motion";
 import { useLocomotiveScroll } from "react-locomotive-scroll";
 import TextData from "../TextData.json";
@@ -28,14 +28,15 @@ const LogoContainer = styled.div`
   justify-content: center;
   align-items: center;
 
-  img {
+  svg {
     width: 15vw;
     height: auto;
-    
+    color: ${(props) => props.theme.text};
+
     @media (max-width: 48em) {
       width: 20vw;
     }
-    
+
     @media (max-width: 30em) {
       width: 25vw;
     }
@@ -119,6 +120,8 @@ const Bottom = styled.div`
   }
 `;
 
+const StarIcon = styled(FaStar)``;
+
 const Footer = () => {
   const { scroll } = useLocomotiveScroll();
 
@@ -145,7 +148,7 @@ const Footer = () => {
   return (
     <Section>
       <LogoContainer>
-        <img data-scroll data-scroll-speed="2" src={LogoImg} alt={TextData.brand.name} />
+        <StarIcon data-scroll data-scroll-speed="2" />
         <h3 data-scroll data-scroll-speed="-1">
           {TextData.brand.name}
         </h3>

@@ -240,7 +240,7 @@ const ProductCard = ({ img, title, description, price }) => {
       whileHover={{ y: -10 }}
     >
       <ImageContainer>
-        <Image src={img} alt={title} loading="lazy" decoding="async" />
+        <Image src={img} alt={title} loading="eager" decoding="async" />
         <Price>${price}</Price>
       </ImageContainer>
       <Overlay>

@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { FaStar } from "react-icons/fa";
 import TextData from "../TextData.json";
-import LogoImg from "../logo.png";
 
 const Container = styled(motion.div)`
   position: absolute;
@@ -34,6 +34,16 @@ const Container = styled(motion.div)`
     @media (max-width: 48em) {
       width: 20vw;
     }
+  }
+`;
+
+// Styled star icon that adapts its color and size responsively
+const StarIcon = styled(FaStar)`
+  font-size: 10vw;
+  color: ${(props) => props.theme.text};
+
+  @media (max-width: 48em) {
+    font-size: 20vw;
   }
 `;
 
@@ -93,13 +103,13 @@ const Loader = () => {
         duration: 2,
       }}
     >
-      <motion.img
+      <motion.div
         variants={imageVariants}
         initial="hidden"
         animate="visible"
-        src={LogoImg}
-        alt="Logo"
-      />
+      >
+        <StarIcon />
+      </motion.div>
       <Text variants={textVariants} initial="hidden" animate="visible">
         {TextData.brand.name}
       </Text>
