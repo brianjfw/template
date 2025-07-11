@@ -4,14 +4,38 @@ import MediaData from '../MediaData.json';
 // Component that preloads all media assets (images & videos) on first mount
 const PreloadMedia = () => {
   useEffect(() => {
-    // Preload images
+    const origins = new Set();
+
+    // --- Helper to create or skip duplicate link tags ---
+    const appendUniqueLink = (attributes = {}) => {
+      if (!attributes.href) return;
+      const selectorParts = Object.entries(attributes)
+        .map(([k, v]) => `[${k}='${v}']`)
+        .join('');
+      if (!document.head.querySelector(`link${selectorParts}`)) {
+        const link = document.createElement('link');
+        Object.entries(attributes).forEach(([k, v]) => (link[k] = v));
+        document.head.appendChild(link);
+      }
+    };
+
+    // Preload and cache images dynamically
     Object.keys(MediaData)
       .filter((key) => key.startsWith('image'))
       .forEach((key) => {
         const src = MediaData[key];
         if (typeof src === 'string') {
+          // Initiate fetch via Image() – keeps behaviour if JS loads first
           const img = new Image();
           img.src = src;
+
+          // Add preload link tag so browser fetches early on HTML parse
+          appendUniqueLink({ rel: 'preload', as: 'image', href: src, crossOrigin: '' });
+
+          // Track origin for preconnect
+          try {
+            origins.add(new URL(src).origin);
+          } catch (_) {}
         }
       });
 
@@ -19,19 +43,18 @@ const PreloadMedia = () => {
     if (Array.isArray(MediaData.videos)) {
       MediaData.videos.forEach((video) => {
         if (video?.link) {
-          const linkEl = document.createElement('link');
-          linkEl.rel = 'preload';
-          linkEl.as = 'video';
-          linkEl.href = video.link;
-          // Fallback to video/mp4 if file_type is missing
-          linkEl.type = video.file_type || 'video/mp4';
-          // Avoid duplicating identical preload tags
-          if (!document.head.querySelector(`link[rel='preload'][href='${video.link}']`)) {
-            document.head.appendChild(linkEl);
-          }
+          appendUniqueLink({ rel: 'preload', as: 'video', href: video.link, type: video.file_type || 'video/mp4', crossOrigin: '' });
+          try {
+            origins.add(new URL(video.link).origin);
+          } catch (_) {}
         }
       });
     }
+
+    // Add preconnect hints for each unique origin (images/videos CDNs)
+    origins.forEach((origin) => {
+      appendUniqueLink({ rel: 'preconnect', href: origin, crossOrigin: '' });
+    });
   }, []);
 
   // This component does not render anything visible
