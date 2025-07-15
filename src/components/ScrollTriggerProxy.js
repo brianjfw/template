@@ -13,24 +13,22 @@ const ScrollTriggerProxy = () => {
       return;
     }
 
-    // Check if device is mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-
-    // Configure ScrollTrigger for mobile
-    if (isMobile) {
-      ScrollTrigger.config({ 
-        ignoreMobileResize: true,
-        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load"
-      });
-    }
-
     const locomotiveElement = scroll.el;
+    const isMobile = window.innerWidth <= 768;
 
     // Set up the scroller proxy
     ScrollTrigger.scrollerProxy(locomotiveElement, {
       scrollTop(value) {
         return arguments.length
-          ? scroll.scrollTo(value, { duration: 0, disableLerp: true })
+          ? scroll.scrollTo(value, { 
+              duration: 0, 
+              disableLerp: true,
+              // Ensure smooth scrolling on mobile
+              ...(isMobile && { 
+                duration: 0.1,
+                disableLerp: false 
+              })
+            })
           : scroll.scroll.instance.scroll.y;
       },
       getBoundingClientRect() {
@@ -59,6 +57,18 @@ const ScrollTriggerProxy = () => {
     };
     ScrollTrigger.addEventListener("refresh", handleRefresh);
 
+    // 3. Handle mobile orientation changes and resize
+    const handleResize = () => {
+      // Refresh ScrollTrigger after a small delay to ensure proper mobile handling
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+        scroll.update();
+      }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
     // Initial refresh to sync everything
     ScrollTrigger.refresh();
 
@@ -66,6 +76,8 @@ const ScrollTriggerProxy = () => {
     return () => {
       ScrollTrigger.removeEventListener("refresh", handleRefresh);
       scroll.off("scroll", handleScroll);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       
       // Kill all ScrollTrigger instances
       ScrollTrigger.killAll();

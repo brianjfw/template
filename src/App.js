@@ -4,7 +4,6 @@ import { dark } from "./styles/Themes";
 import { LocomotiveScrollProvider } from "react-locomotive-scroll";
 import { useRef } from "react";
 import 'locomotive-scroll/dist/locomotive-scroll.css'
-import { isMobile } from "./utils/mobileUtils";
 
 import Home from "./sections/Home";
 import { AnimatePresence } from "framer-motion";
@@ -27,23 +26,29 @@ function App() {
       <ThemeProvider theme={dark}>
         <LocomotiveScrollProvider
           options={{
-            smooth: !isMobile(), // Disable smooth scrolling on mobile
+            smooth: true,
+            lerp: 0.1,
+            multiplier: 1,
             smartphone: { 
-              smooth: false, // Disable smooth scrolling on smartphones
-              horizontalGesture: false, // Disable horizontal gestures
-              touchMultiplier: 2.5, // Increase touch sensitivity
+              smooth: true,
+              lerp: 0.1,
+              multiplier: 1,
+              touchMultiplier: 2,
+              breakpoint: 768
             },
             tablet: { 
-              smooth: false, // Disable smooth scrolling on tablets
-              horizontalGesture: false,
-              touchMultiplier: 2.5,
+              smooth: true,
+              lerp: 0.1,
+              multiplier: 1,
+              touchMultiplier: 2,
+              breakpoint: 1024
             },
-            lerp: isMobile() ? 0 : 0.1, // Disable lerp on mobile for better performance
-            multiplier: isMobile() ? 1 : 0.8, // Adjust scroll multiplier for mobile
-            firefoxMultiplier: isMobile() ? 1 : 50, // Firefox specific multiplier
-            scrollFromAnywhere: false, // Disable scroll from anywhere on mobile
-            reloadOnContextChange: true, // Reload on orientation change
-            touchMultiplier: isMobile() ? 2.5 : 2, // Increase touch sensitivity on mobile
+            reloadOnContextChange: true,
+            touchMultiplier: 2,
+            smoothMobile: true,
+            getDirection: true,
+            getSpeed: true,
+            class: "is-revealed"
           }}
           watch={[]}
           containerRef={containerRef}
@@ -51,14 +56,14 @@ function App() {
           <ScrollTriggerProxy />
           <main className='App' data-scroll-container ref={containerRef}>
             <Home />
-            <div style={{ background: '#fff', width: '100%', position: 'relative' }}>
+            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
               <FeaturedCollection />
             </div>
             <Shop />
-            <div style={{ background: '#fff', width: '100%', position: 'relative' }}>
+            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
               <Banner />
             </div>
-            <div style={{ background: '#fff', width: '100%', position: 'relative' }}>
+            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
               <NewArrival />
             </div>
             <Testimonials />

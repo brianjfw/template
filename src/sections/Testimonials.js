@@ -275,9 +275,6 @@ const Testimonials = () => {
   const ref = useRef(null);
   const horizontalRef = useRef(null);
 
-  // Check if device is mobile
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-
   const sectionData = TextData.testimonialsSection;
   const testimonials = sectionData.testimonials;
   const stats = sectionData.stats;
@@ -305,18 +302,14 @@ const Testimonials = () => {
       // More natural end value calculation based on actual content width
       let endValue = `+=${scrollDistance}`;
 
-      // Mobile-optimized settings
-      const scrubValue = isMobile ? 0.5 : 0.5; // Faster scrub on mobile
-      const pinValue = isMobile ? false : true; // Disable pin on mobile for better performance
-
       // Pin the section and set up the horizontal scroll
       ScrollTrigger.create({
         trigger: element,
         start: "top top",
         end: endValue,
         scroller: ".App",
-        scrub: scrubValue,
-        pin: pinValue,
+        scrub: 0.5, // Slower, more controlled scrub
+        pin: true,
         anticipatePin: 1,
         refreshPriority: -1,
         onToggle: self => {
@@ -360,7 +353,7 @@ const Testimonials = () => {
         }
       });
     };
-  }, [isMobile]);
+  }, []);
 
   const renderTestimonialCard = (testimonial, index) => (
     <TestimonialCard
