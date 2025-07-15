@@ -84,6 +84,7 @@ const Left = styled.div`
     }
   }
 `;
+
 const Right = styled.div`
   position: absolute;
   left: 35%;
@@ -91,7 +92,6 @@ const Right = styled.div`
   min-height: 100vh;
 
   background-color: #fff;
-  /* width: 65%; */
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -100,79 +100,78 @@ const Right = styled.div`
     width: 5rem;
     margin: 0 2rem;
   }
+
+  @media (max-width: 48em) {
+    left: 40%;
+    padding-left: 20%;
+  }
 `;
 
-const Item = styled(motion.div)`
-  width: 20rem;
-  margin-right: 6rem;
+const Product = styled.div`
+  width: 30rem;
+  margin: 0 2rem;
+  position: relative;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  @media (max-width: 64em) {
+    width: 25rem;
+    margin: 0 1rem;
+  }
+  @media (max-width: 48em) {
+    width: 20rem;
+    margin: 0 0.5rem;
+  }
+`;
+
+const ProductImg = styled.div`
+  width: 100%;
+  height: 60vh;
+  background-color: ${(props) => props.theme.text};
+  position: relative;
+  overflow: hidden;
+
   img {
     width: 100%;
-    height: auto;
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:hover img {
-    transform: scale(1.05);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-  }
-  
-  h1 {
-    display: inline-block;
-    width: fit-content;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    margin-top: 1rem;
-    /* Always use a dark color for product titles */
-    color: ${() => (isColorLight(darkTheme.text) ? "#1a1a1a" : darkTheme.text)};
+    height: 100%;
+    object-fit: cover;
   }
 
   @media (max-width: 48em) {
-    width: 15rem;
+    height: 40vh;
   }
 `;
 
-// Helper to determine if a hex color is light (same logic used elsewhere)
-const isColorLight = (hex) => {
-  if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return false;
-  let c = hex.substring(1);
-  if (c.length === 3) c = c.split('').map(ch => ch + ch).join('');
-  const bigint = parseInt(c, 16);
-  if (Number.isNaN(bigint)) return false;
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-  return brightness > 186;
-};
+const ProductTitle = styled.h1`
+  font-weight: 500;
+  font-size: ${(props) => props.theme.fontlg};
+  margin-top: 1rem;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  color: ${(props) => props.theme.text};
 
-const Product = ({ img, title = "" }) => {
-  return (
-    <Item
-      initial={{ filter: "grayscale(100%)" }}
-      whileInView={{ filter: "grayscale(0%)" }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: false, amount: 0.3, margin: "0px 0px -100px 0px" }}
-    >
-      <img src={img} alt={title} loading="eager" decoding="async" />
-      <h1>{title}</h1>
-    </Item>
-  );
-};
+  @media (max-width: 48em) {
+    font-size: ${(props) => props.theme.fontmd};
+  }
+`;
+
+const ProductPrice = styled.span`
+  font-weight: 700;
+  font-size: ${(props) => props.theme.fontmd};
+  color: ${(props) => props.theme.accent};
+
+  @media (max-width: 48em) {
+    font-size: ${(props) => props.theme.fontsm};
+  }
+`;
 
 const Shop = () => {
   gsap.registerPlugin(ScrollTrigger);
 
   const ref = useRef(null);
   const horizontalRef = useRef(null);
+
+  // Check if device is mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
   const newCollection = TextData.newCollection;
   const shopProductTitles = newCollection.shopProducts?.map(p => p.title) || [];
@@ -210,14 +209,18 @@ const Shop = () => {
       const scrollDistance = scrollingElement.scrollWidth;
       const endValue = `+=${scrollDistance}`;
 
+      // Mobile-optimized settings
+      const scrubValue = isMobile ? 0.5 : 1; // Faster scrub on mobile
+      const pinValue = isMobile ? false : true; // Disable pin on mobile for better performance
+
       t1.to(element, {
         scrollTrigger: {
           trigger: element,
           start: "top top",
           end: endValue,
           scroller: ".App",
-          scrub: 1, // Slightly slower scrub for better mobile performance
-          pin: true,
+          scrub: scrubValue,
+          pin: pinValue,
           refreshPriority: -1,
           onToggle: self => {
             // Force refresh on toggle for mobile
@@ -226,23 +229,25 @@ const Shop = () => {
             }
           }
         },
-        height: `${scrollingElement.scrollWidth}px`,
+        height: pinValue ? `${scrollingElement.scrollWidth}px` : "auto",
         ease: "none",
       });
 
-      // Horizontal Scrolling
-      t1.to(scrollingElement, {
-        scrollTrigger: {
-          trigger: scrollingElement,
-          start: "top top",
-          end: endValue,
-          scroller: ".App",
-          scrub: 1,
-          refreshPriority: -1,
-        },
-        x: -scrollDistance,
-        ease: "none",
-      });
+      // Horizontal Scrolling (only if not pinned on mobile)
+      if (!isMobile || !pinValue) {
+        t1.to(scrollingElement, {
+          scrollTrigger: {
+            trigger: scrollingElement,
+            start: "top top",
+            end: endValue,
+            scroller: ".App",
+            scrub: scrubValue,
+            refreshPriority: -1,
+          },
+          x: -scrollDistance,
+          ease: "none",
+        });
+      }
 
       ScrollTrigger.refresh();
     };
@@ -273,7 +278,7 @@ const Shop = () => {
         }
       });
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <Section ref={ref} id="shop">
@@ -287,7 +292,12 @@ const Shop = () => {
       </Left>
       <Right ref={horizontalRef}>
         {productImages.map((img, idx) => (
-          <Product key={idx} img={img} title={shopProductTitles[idx] || ""} />
+          <Product key={idx}>
+            <ProductImg>
+              <img src={img} alt={shopProductTitles[idx] || ""} />
+            </ProductImg>
+            <ProductTitle>{shopProductTitles[idx] || ""}</ProductTitle>
+          </Product>
         ))}
       </Right>
     </Section>

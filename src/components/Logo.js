@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { FaStar } from "react-icons/fa";
+import { FaGem } from "react-icons/fa";
 
 const Container = styled.div`
   position: absolute;
@@ -48,7 +48,7 @@ const Text = styled(motion.span)`
   padding-bottom: 0.5rem;
 `;
 
-const StarIcon = styled(FaStar)`
+const GemIcon = styled(FaGem)`
   font-size: 4rem;
   color: ${(props) => props.theme.text};
 
@@ -104,7 +104,7 @@ const Logo = () => {
           initial="hidden"
           animate="visible"
         >
-          <StarIcon />
+          <GemIcon />
         </motion.div>
       </Link>
     </Container>

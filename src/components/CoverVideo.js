@@ -158,8 +158,8 @@ const LocationTag = styled(motion.div)`
 
 const CTAButton = styled(motion.button)`
   position: absolute;
-  top: 1.5rem;
-  right: 2rem;
+  top: 1rem;
+  right: 1rem;
   z-index: 5;
   
   background: transparent;
@@ -171,7 +171,7 @@ const CTAButton = styled(motion.button)`
   text-transform: uppercase;
   letter-spacing: 2px;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 25px;
   
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
@@ -189,8 +189,8 @@ const CTAButton = styled(motion.button)`
   }
 
   @media (max-width: 48em) {
-    top: 1rem;
-    right: 1rem;
+    top: 0.8rem;
+    right: 0.8rem;
     padding: 0.6rem 1rem;
     font-size: ${(props) => props.theme.fontsm};
     border: none;
@@ -206,8 +206,8 @@ const CTAButton = styled(motion.button)`
   }
   
   @media (max-width: 40em) {
-    top: 0.8rem;
-    right: 0.8rem;
+    top: 0.6rem;
+    right: 0.6rem;
     padding: 0.5rem 0.8rem;
     font-size: ${(props) => props.theme.fontxs};
     letter-spacing: 1px;

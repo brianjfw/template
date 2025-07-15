@@ -293,6 +293,9 @@ const FeaturedCollection = () => {
   gsap.registerPlugin(ScrollTrigger);
   const ref = useRef(null);
 
+  // Check if device is mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
   useLayoutEffect(() => {
     let element = ref.current;
 
@@ -307,6 +310,9 @@ const FeaturedCollection = () => {
           trigger.kill();
         }
       });
+
+      // Mobile-optimized settings
+      const scrubValue = isMobile ? 0.5 : 1; // Faster scrub on mobile
 
       t1.fromTo(
         element.querySelectorAll(".floating-element"),
@@ -324,7 +330,7 @@ const FeaturedCollection = () => {
             start: "top center",
             end: "bottom center",
             scroller: ".App",
-            scrub: 1,
+            scrub: scrubValue,
             refreshPriority: -1,
             onToggle: self => {
               // Force refresh on toggle for mobile
@@ -365,7 +371,7 @@ const FeaturedCollection = () => {
         }
       });
     };
-  }, []);
+  }, [isMobile]);
 
   // Map images to products
   const images = [

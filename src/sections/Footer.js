@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { FaStar } from "react-icons/fa";
+import { FaGem } from "react-icons/fa";
 
 import { motion } from "framer-motion";
 import { useLocomotiveScroll } from "react-locomotive-scroll";
@@ -120,7 +120,18 @@ const Bottom = styled.div`
   }
 `;
 
-const StarIcon = styled(FaStar)``;
+const GemIcon = styled(FaGem)`
+  font-size: 8rem;
+  color: ${(props) => props.theme.text};
+
+  @media (max-width: 48em) {
+    font-size: 6rem;
+  }
+
+  @media (max-width: 30em) {
+    font-size: 4rem;
+  }
+`;
 
 const Footer = () => {
   const { scroll } = useLocomotiveScroll();
@@ -148,7 +159,7 @@ const Footer = () => {
   return (
     <Section>
       <LogoContainer>
-        <StarIcon data-scroll data-scroll-speed="2" />
+        <GemIcon data-scroll data-scroll-speed="2" />
         <h3 data-scroll data-scroll-speed="-1">
           {TextData.brand.name}
         </h3>

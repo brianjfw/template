@@ -70,24 +70,13 @@ const MenuBtn = styled.li`
     height: 2rem;
   }
 `;
-const MenuItem = styled(motion.li)`
-  text-transform: uppercase;
-  color: ${(props) => props.theme.text};
-  cursor: pointer;
 
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: ${(props) => props.theme.accent};
-  }
-
-  &:active {
-    color: ${(props) => props.theme.accentLight};
-  }
+const MenuItem = styled.li`
+  position: relative;
+  list-style: none;
 
   @media (max-width: 40em) {
-    flex-direction: column;
-    padding: 0.5rem 0;
+    margin: 1rem 0;
   }
 `;
 
@@ -106,14 +95,24 @@ const NavBar = () => {
 
   const { scroll } = useLocomotiveScroll();
 
+  // Check if device is mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
   const handleScroll = (id) => {
     let elem = document.querySelector(id);
     setClick(!click);
-    scroll.scrollTo(elem, {
-      offset: "-100",
-      duration: "2000",
-      easing: [0.25, 0.0, 0.35, 1.0],
-    });
+    
+    if (isMobile) {
+      // Use native scrolling on mobile
+      elem?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Use Locomotive Scroll on desktop
+      scroll.scrollTo(elem, {
+        offset: "-100",
+        duration: "2000",
+        easing: [0.25, 0.0, 0.35, 1.0],
+      });
+    }
   };
 
   return (
@@ -131,13 +130,14 @@ const NavBar = () => {
       }}
     >
       <MenuItems
-        drag="y"
-        dragConstraints={{
+        // Only enable drag on desktop
+        drag={isMobile ? false : "y"}
+        dragConstraints={isMobile ? {} : {
           top: 0,
           bottom: 70,
         }}
-        dragElastic={0.05}
-        dragSnapToOrigin
+        dragElastic={isMobile ? 0 : 0.05}
+        dragSnapToOrigin={!isMobile}
       >
         <MenuBtn onClick={() => setClick(!click)}>Menu</MenuBtn>
         {sectionLinks.map((section, idx) => (

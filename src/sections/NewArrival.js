@@ -178,6 +178,9 @@ const NewArrival = () => {
   const ref = useRef(null);
   const ScrollingRef = useRef(null);
 
+  // Check if device is mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
   const newArrivals = TextData.newArrivals;
   const productImages = [
     MediaData.image19,
@@ -202,14 +205,18 @@ const NewArrival = () => {
         }
       });
 
+      // Mobile-optimized settings
+      const scrubValue = isMobile ? 0.5 : 1; // Faster scrub on mobile
+      const pinValue = isMobile ? false : true; // Disable pin on mobile for better performance
+
       t1.to(element, {
         scrollTrigger: {
           trigger: element,
           start: "top top",
           end: "bottom+=100% top-=100%",
           scroller: ".App",
-          scrub: 1,
-          pin: true,
+          scrub: scrubValue,
+          pin: pinValue,
           refreshPriority: -1,
           onToggle: self => {
             // Force refresh on toggle for mobile
@@ -234,7 +241,7 @@ const NewArrival = () => {
             start: "top top",
             end: "bottom top",
             scroller: ".App",
-            scrub: 1,
+            scrub: scrubValue,
             refreshPriority: -1,
           },
         }
@@ -253,7 +260,7 @@ const NewArrival = () => {
             start: "top top",
             end: "bottom+=100% top-=100%",
             scroller: ".App",
-            scrub: 1,
+            scrub: scrubValue,
             refreshPriority: -1,
           },
         },
@@ -274,7 +281,7 @@ const NewArrival = () => {
               start: "top top",
               end: "bottom+=100% top-=100%",
               scroller: ".App",
-              scrub: 1,
+              scrub: scrubValue,
               refreshPriority: -1,
             },
           },
@@ -311,7 +318,7 @@ const NewArrival = () => {
         }
       });
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <Section ref={ref} id="new-arrival">

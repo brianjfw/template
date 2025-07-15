@@ -13,6 +13,17 @@ const ScrollTriggerProxy = () => {
       return;
     }
 
+    // Check if device is mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+    // Configure ScrollTrigger for mobile
+    if (isMobile) {
+      ScrollTrigger.config({ 
+        ignoreMobileResize: true,
+        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load"
+      });
+    }
+
     const locomotiveElement = scroll.el;
 
     // Set up the scroller proxy
