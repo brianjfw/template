@@ -265,42 +265,22 @@ const CoverVideo = () => {
 
   // Memoize unique videos to prevent recalculation on every render
   const uniqueVideos = useMemo(() => {
-    const videos = MediaData.videos;
-    const videoList = [];
-    const seenIds = new Set();
-    
-    // Filter to get best quality version of each unique video
-    videos.forEach(video => {
-      if (!seenIds.has(video.id)) {
-        seenIds.add(video.id);
-        // Find the best quality version of this video ID
-        const allVersions = videos.filter(v => v.id === video.id);
-        const bestVersion = allVersions.reduce((best, current) => {
-          // Prefer HD over SD, and higher resolution within same quality
-          if (best.quality !== current.quality) {
-            return best.quality === 'hd' ? best : current;
-          }
-          return best.width > current.width ? best : current;
-        });
-        videoList.push(bestVersion);
-      }
-    });
-    
-    console.log(`Found ${videoList.length} unique videos:`, videoList.map(v => `ID:${v.id} ${v.width}x${v.height} ${v.quality}`));
-    return videoList;
+    const localVideos = MediaData.videos.filter(v => v.link.startsWith('assets/'));
+    console.log(`Found ${localVideos.length} unique videos:`, localVideos.map(v => v.link));
+    return localVideos;
   }, []);
 
   // Get video URL by index
   const getVideoUrl = useCallback((index) => {
     const video = uniqueVideos[index % uniqueVideos.length];
-    return video?.link || MediaData.videos[0]?.link;
+    return video?.link || '';
   }, [uniqueVideos]);
 
   // Get the current video URL - memoized to prevent unnecessary recalculations
   const currentVideoUrl = useMemo(() => {
     const video = uniqueVideos[currentVideoIndex % uniqueVideos.length];
-    console.log(`Current video: ${currentVideoIndex}, ID: ${video?.id}, URL: ${video?.link}`);
-    return video?.link || MediaData.videos[0]?.link;
+    console.log(`Current video: ${currentVideoIndex}, URL: ${video?.link}`);
+    return video?.link || '';
   }, [currentVideoIndex, uniqueVideos]);
 
   // Get the next video URL

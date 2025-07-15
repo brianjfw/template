@@ -23,6 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Download media
+        run: node scripts/download-media.js
+        env:
+          PEXELS_API_KEY: OebYoKnvEJ44kiqzubrsq9x4G8SpX7o3aVvFXnyY2eUrPcNsZSW1OdoS
+
       - name: Inject correct homepage and build without failing on warnings
         env:
           OWNER: ${{ github.repository_owner }}

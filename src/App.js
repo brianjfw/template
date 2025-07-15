@@ -17,8 +17,6 @@ import FAQ from "./sections/FAQ";
 import Timeline from "./sections/Timeline";
 import Footer from './sections/Footer';
 import Loader from "./components/Loader";
-import PreloadMedia from './components/PreloadMedia';
-
 
 function App() {
   const containerRef = useRef(null);
@@ -52,7 +50,6 @@ function App() {
   return (
     <>
       <GlobalStyles />
-      <PreloadMedia />
       <ThemeProvider theme={dark}>
         <LocomotiveScrollProvider
           options={{
