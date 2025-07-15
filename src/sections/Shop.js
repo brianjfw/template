@@ -114,13 +114,23 @@ const Item = styled(motion.div)`
     width: 100%;
     height: auto;
     cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
+  
+  &:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+  }
+  
   h1 {
     display: inline-block;
     width: fit-content;
     font-weight: 500;
     text-align: center;
     cursor: pointer;
+    margin-top: 1rem;
     /* Always use a dark color for product titles */
     color: ${() => (isColorLight(darkTheme.text) ? "#1a1a1a" : darkTheme.text)};
   }
@@ -196,11 +206,15 @@ const Shop = () => {
         }
       });
 
+      // Use the full width of the scrolling content
+      const scrollDistance = scrollingElement.scrollWidth;
+      const endValue = `+=${scrollDistance}`;
+
       t1.to(element, {
         scrollTrigger: {
           trigger: element,
           start: "top top",
-          end: pinWrapWidth,
+          end: endValue,
           scroller: ".App",
           scrub: 1, // Slightly slower scrub for better mobile performance
           pin: true,
@@ -221,12 +235,12 @@ const Shop = () => {
         scrollTrigger: {
           trigger: scrollingElement,
           start: "top top",
-          end: pinWrapWidth,
+          end: endValue,
           scroller: ".App",
           scrub: 1,
           refreshPriority: -1,
         },
-        x: -pinWrapWidth,
+        x: -scrollDistance,
         ease: "none",
       });
 

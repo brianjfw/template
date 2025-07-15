@@ -98,7 +98,15 @@ const StepCard = styled(motion.div)`
   margin-right: ${({ align }) => (align === "left" ? "2.5rem" : "0")};
   border: 1.5px solid rgba(0,0,0,0.06);
   backdrop-filter: blur(6px);
+  border-radius: 20px;
   z-index: 2;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(${(props) => props.theme.shadow}, 0.3);
+  }
+
   @media (max-width: 48em) {
     margin: 0;
     min-width: 0;

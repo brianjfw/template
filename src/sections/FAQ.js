@@ -74,10 +74,17 @@ const FAQItem = styled.div`
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 16px rgba(${(props) => props.theme.shadow});
   overflow: hidden;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(${(props) => props.theme.shadow}, 0.25);
+  }
 
   @media (max-width: 48em) {
     margin-bottom: 1rem;
-    border-radius: 10px;
+    border-radius: 15px;
   }
 `;
 

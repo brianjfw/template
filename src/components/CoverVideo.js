@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { FaMapPin } from "react-icons/fa";
 import TextData from "../TextData.json";
 import MediaData from "../MediaData.json";
 
@@ -23,7 +24,7 @@ const VideoContainer = styled.section`
     height: 100%;
     background: rgba(${(props) => props.theme.bodyRgba}, 0.4);
     pointer-events: none; /* Ensure clicks pass through */
-    z-index: 1;
+    z-index: 2;
   }
 
   video {
@@ -34,8 +35,7 @@ const VideoContainer = styled.section`
     height: 100vh;
     object-fit: cover;
     object-position: center;
-    transition: opacity 1s ease-in-out;
-    z-index: 0; /* Stay below overlay */
+    transition: opacity 1.5s ease-in-out;
   }
 
   @media (max-width: 48em) {
@@ -92,14 +92,14 @@ const Title = styled(motion.div)`
     padding: 0;
     
     @media (max-width: 48em) {
-      font-size: calc(2.5rem + 5vw);
-      letter-spacing: normal;
+      font-size: calc(3rem + 6vw);
+      letter-spacing: 0.04em;
       margin: 0 -0.02em;
       padding: 0;
     }
     @media (max-width: 30em) {
-      font-size: calc(2rem + 6vw);
-      letter-spacing: normal;
+      font-size: calc(2.5rem + 7vw);
+      letter-spacing: 0.04em;
       margin: 0 -0.03em;
       padding: 0;
       flex: none;
@@ -124,6 +124,35 @@ const Title = styled(motion.div)`
       margin-top: -1.5rem;
       margin-top: 1.2rem;
     }
+  }
+`;
+
+const LocationTag = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: "Sirin Stencil";
+  font-size: ${(props) => props.theme.fontlg};
+  font-weight: 300;
+  text-transform: capitalize;
+  
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  background-color: ${(props) => props.theme.brandColor};
+  border: 1px solid ${(props) => props.theme.brandColor};
+  color: ${(props) => props.theme.text};
+  text-shadow: none;
+
+  margin-bottom: 1rem;
+
+  @media (max-width: 48em) {
+    font-size: ${(props) => props.theme.fontmd};
+  }
+  @media (max-width: 30em) {
+    font-size: ${(props) => props.theme.fontsm};
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 1rem;
   }
 `;
 
@@ -194,30 +223,6 @@ const CTAButton = styled(motion.button)`
   }
 `;
 
-const ScrollIndicator = styled(motion.div)`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-  cursor: pointer;
-  
-  svg {
-    width: 2rem;
-    height: 2rem;
-    color: ${(props) => props.theme.text};
-  }
-  
-  @media (max-width: 48em) {
-    bottom: 1.5rem;
-    
-    svg {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-  }
-`;
-
 const container = {
   hidden: {
     opacity: 0,
@@ -241,213 +246,117 @@ const item = {
 };
 
 const CoverVideo = () => {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [videoStartTime, setVideoStartTime] = useState(Date.now());
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [nextVideoIndex, setNextVideoIndex] = useState(1);
-  const [nextVideoLoaded, setNextVideoLoaded] = useState(false);
-  const videoRef = useRef(null);
-  const nextVideoRef = useRef(null);
-  const transitionTimeoutRef = useRef(null);
-  
-  // Split brand name into individual characters including spaces for animation
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
+
+  const primaryVideoRef = useRef(null);
+  const secondaryVideoRef = useRef(null);
+  const videoPlayStartTimeRef = useRef(Date.now());
+
   const brandName = TextData.brand.name;
   const brandTagline = TextData.brand.tagline;
 
-  // Cleanup function for transitions
-  const cleanupTransition = useCallback(() => {
-    if (transitionTimeoutRef.current) {
-      clearTimeout(transitionTimeoutRef.current);
-      transitionTimeoutRef.current = null;
-    }
-  }, []);
-
-  // Memoize unique videos to prevent recalculation on every render
   const uniqueVideos = useMemo(() => {
     const localVideos = MediaData.videos.filter(v => v.link.startsWith('assets/'));
     console.log(`Found ${localVideos.length} unique videos:`, localVideos.map(v => v.link));
     return localVideos;
   }, []);
 
-  // Get video URL by index
-  const getVideoUrl = useCallback((index) => {
-    const video = uniqueVideos[index % uniqueVideos.length];
-    return video?.link || '';
-  }, [uniqueVideos]);
+  const primarySrc = useMemo(() => {
+    if (uniqueVideos.length === 0) return '';
+    return uniqueVideos[currentIndex % uniqueVideos.length]?.link;
+  }, [currentIndex, uniqueVideos]);
 
-  // Get the current video URL - memoized to prevent unnecessary recalculations
-  const currentVideoUrl = useMemo(() => {
-    const video = uniqueVideos[currentVideoIndex % uniqueVideos.length];
-    console.log(`Current video: ${currentVideoIndex}, URL: ${video?.link}`);
-    return video?.link || '';
-  }, [currentVideoIndex, uniqueVideos]);
+  const secondarySrc = useMemo(() => {
+    if (uniqueVideos.length === 0) return '';
+    return uniqueVideos[(currentIndex + 1) % uniqueVideos.length]?.link;
+  }, [currentIndex, uniqueVideos]);
 
-  // Get the next video URL
-  const nextVideoUrl = useMemo(() => {
-    return getVideoUrl(nextVideoIndex);
-  }, [nextVideoIndex, getVideoUrl]);
-
-  // Handle video end event to chain to next video (creates seamless looping)
   const handleVideoEnded = useCallback(() => {
-    const minPlayTime = 8000; // Minimum 8 seconds per video
-    const playTime = Date.now() - videoStartTime;
-    
-    if (playTime < minPlayTime) {
-      console.log(`Video too short (${playTime}ms), letting it loop once more`);
+    const minPlayTime = 8000;
+    const elapsedTime = Date.now() - videoPlayStartTimeRef.current;
+    if (elapsedTime < minPlayTime && uniqueVideos.length > 1) {
+      if (primaryVideoRef.current) {
+        primaryVideoRef.current.play().catch(console.error);
+      }
       return;
     }
+    if (uniqueVideos.length > 1) {
+      setIsFading(true);
+    }
+  }, [uniqueVideos.length]);
 
-    const nextIndex = (currentVideoIndex + 1) % uniqueVideos.length;
-    console.log(`Video ended after ${playTime}ms. Switching from index ${currentVideoIndex} to ${nextIndex} (${uniqueVideos.length} unique videos)`);
+  const handleFadeComplete = useCallback(() => {
+    if (!isFading) return;
     
-    // Start crossfade transition
-    setIsTransitioning(true);
-    setNextVideoIndex(nextIndex);
-    setNextVideoLoaded(false);
-    
-    // Clean up any existing transition
-    cleanupTransition();
-    
-    // Complete the transition after the next video loads and crossfade completes
-    transitionTimeoutRef.current = setTimeout(() => {
-      setCurrentVideoIndex(nextIndex);
-      setIsTransitioning(false);
-      setVideoStartTime(Date.now());
-      
-      // Prepare the next video for future transition
-      const futureNext = (nextIndex + 1) % uniqueVideos.length;
-      setNextVideoIndex(futureNext);
-      setNextVideoLoaded(false);
-      
-      transitionTimeoutRef.current = null;
-    }, 1500); // Allow time for crossfade
-  }, [currentVideoIndex, uniqueVideos.length, videoStartTime, cleanupTransition]);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % uniqueVideos.length);
+    setIsFading(false);
+  }, [isFading, uniqueVideos.length]);
+  
+  const handlePrimaryVideoLoad = useCallback(() => {
+    videoPlayStartTimeRef.current = Date.now();
+  }, []);
 
-  // Handle main video load event
-  const handleVideoLoaded = useCallback(() => {
-    setIsVideoLoaded(true);
-    setVideoStartTime(Date.now());
-    console.log(`Video loaded successfully: index ${currentVideoIndex}`);
-  }, [currentVideoIndex]);
+  const handleVideoError = useCallback((e) => {
+    console.warn(`Error with video ${e.target.src}, skipping.`);
+    setCurrentIndex(prev => (prev + 1) % uniqueVideos.length);
+  }, [uniqueVideos.length]);
 
-  // Handle next video load event
-  const handleNextVideoLoaded = useCallback(() => {
-    setNextVideoLoaded(true);
-    console.log(`Next video loaded successfully: index ${nextVideoIndex}`);
-  }, [nextVideoIndex]);
+  useEffect(() => {
+    if (isFading) {
+      secondaryVideoRef.current?.play().catch(e => {
+        console.error("Secondary video play failed", e);
+        handleFadeComplete();
+      });
+    }
+  }, [isFading, handleFadeComplete]);
 
-  // Handle video error
-  const handleVideoError = useCallback(() => {
-    console.warn('Video failed to load, trying next video...');
-    const nextIndex = (currentVideoIndex + 1) % uniqueVideos.length;
-    setCurrentVideoIndex(nextIndex);
-  }, [currentVideoIndex, uniqueVideos.length]);
-
-  // Handle next video error
-  const handleNextVideoError = useCallback(() => {
-    console.warn('Next video failed to load, trying another...');
-    const futureNext = (nextVideoIndex + 1) % uniqueVideos.length;
-    setNextVideoIndex(futureNext);
-  }, [nextVideoIndex, uniqueVideos.length]);
-
-  // Reset video index when screen size changes
   useEffect(() => {
     const handleResize = () => {
-      setCurrentVideoIndex(0);
-      setNextVideoIndex(1);
-      setIsTransitioning(false);
-      console.log('Screen resized, reset to first video');
+      console.log('Screen resized, resetting video sequence.');
+      setIsFading(false);
+      setCurrentIndex(0);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // Handle video transitions - only reset loaded state when index changes
-  useEffect(() => {
-    console.log(`Video index changed to: ${currentVideoIndex}, URL: ${currentVideoUrl}`);
-    // Only reset loaded state if we're not in the middle of a transition
-    if (!isTransitioning) {
-      setIsVideoLoaded(false);
-    }
-  }, [currentVideoIndex, isTransitioning]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      cleanupTransition();
-    };
-  }, [cleanupTransition]);
-
+  
   const handleCTAClick = useCallback(() => {
-    // Scroll to footer section
     const footerSection = document.querySelector('footer');
     if (footerSection) {
       footerSection.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
-  const handleScrollDown = useCallback(() => {
-    // Scroll to the next section (featured collection)
-    const nextSection = document.querySelector('#featured-collection');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
-
   return (
     <VideoContainer>
-      {/* Main video */}
-      <video 
-        key={`video-${currentVideoIndex}`}
-        ref={videoRef}
-        src={currentVideoUrl} 
-        type="video/mp4" 
-        autoPlay 
-        muted 
+      <video
+        ref={primaryVideoRef}
+        src={primarySrc}
+        autoPlay
+        muted
         playsInline
         onEnded={handleVideoEnded}
-        onLoadedData={handleVideoLoaded}
+        onLoadedData={handlePrimaryVideoLoad}
         onError={handleVideoError}
-        style={{ 
-          opacity: isVideoLoaded && !isTransitioning ? 1 : (isTransitioning ? 0 : 0),
-          transition: 'opacity 1s ease-in-out',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+        style={{
+          opacity: isFading ? 0 : 1,
+          zIndex: 1
+        }}
+      />
+      <video
+        ref={secondaryVideoRef}
+        src={secondarySrc}
+        autoPlay
+        muted
+        playsInline
+        onTransitionEnd={handleFadeComplete}
+        onError={handleVideoError}
+        style={{
+          opacity: isFading ? 1 : 0,
           zIndex: 0
         }}
       />
-      
-      {/* Next video for crossfade transitions */}
-      {isTransitioning && (
-        <video 
-          key={`next-video-${nextVideoIndex}`}
-          ref={nextVideoRef}
-          src={nextVideoUrl} 
-          type="video/mp4" 
-          autoPlay 
-          muted 
-          playsInline
-          onLoadedData={handleNextVideoLoaded}
-          onError={handleNextVideoError}
-          style={{ 
-            opacity: nextVideoLoaded ? 1 : 0,
-            transition: 'opacity 1s ease-in-out',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            zIndex: 1
-          }}
-        />
-      )}
       
       <CTAButton
         initial={{ opacity: 0, y: -20 }}
@@ -458,6 +367,15 @@ const CoverVideo = () => {
         Shop Now
       </CTAButton>
       <Title variants={container} initial="hidden" animate="show">
+        <LocationTag
+          variants={item}
+          data-scroll
+          data-scroll-delay="0.04"
+          data-scroll-speed="2"
+        >
+          <FaMapPin />
+          <span>Vancouver, BC</span>
+        </LocationTag>
         <div className="words-row">
           {[...brandName].map((char, charIdx) => {
             // Start delay at 0.05 so the first letter animates
@@ -501,27 +419,6 @@ const CoverVideo = () => {
           {brandTagline}
         </motion.h2>
       </Title>
-      <ScrollIndicator
-        initial={{ opacity: 0 }}
-        animate={{ 
-          opacity: 1,
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ 
-          delay: 8, 
-          duration: 1,
-          scale: {
-            repeat: Infinity,
-            duration: 2,
-            ease: "easeInOut"
-          }
-        }}
-        onClick={handleScrollDown}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6,9 12,15 18,9"></polyline>
-        </svg>
-      </ScrollIndicator>
     </VideoContainer>
   );
 };

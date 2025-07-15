@@ -96,12 +96,13 @@ const GridContainer = styled.div`
 const GridItem = styled(motion.div)`
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.4s ease;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   background: ${(props) => props.theme.body};
   
-  /* Colored overlay initially, transforms into gradient dark overlay on hover */
+  /* Enhanced dark overlay with gradient */
   &::after {
     content: '';
     position: absolute;
@@ -109,13 +110,19 @@ const GridItem = styled(motion.div)`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(${(props) => props.theme.bodyRgba}, 0.4);
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
     opacity: 1;
-    transition: background 0.4s ease;
+    transition: all 0.4s ease;
     z-index: 1;
+    border-radius: 20px;
   }
 
-  /* Shimmer/inner shadow effect only visible on hover */
+  /* Enhanced shimmer effect */
   &::before {
     content: '';
     position: absolute;
@@ -123,28 +130,50 @@ const GridItem = styled(motion.div)`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.15) 50%, transparent 70%);
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0.1) 75%,
+      transparent 100%
+    );
     opacity: 0;
-    transform: translateX(-100%);
-    transition: opacity 0.4s ease, transform 0.6s ease;
+    transform: translateX(-100%) skewX(-15deg);
+    transition: all 0.6s ease;
     z-index: 2;
     pointer-events: none;
+    border-radius: 20px;
   }
 
   &:hover::before {
     opacity: 1;
-    transform: translateX(100%);
+    transform: translateX(100%) skewX(-15deg);
   }
 
-  /* On hover, replace overlay with a dark gradient shadow that is stronger at the bottom */
+  /* Enhanced hover overlay */
   &:hover::after {
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 45%, rgba(0,0,0,0.6) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
     opacity: 1;
   }
 
-  /* Apply darker inner shadow on hover */
+  /* Enhanced hover effects */
   &:hover {
-    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6), 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.25),
+      0 8px 16px rgba(0, 0, 0, 0.15),
+      inset 0 0 60px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Add subtle border on hover */
+  &:hover {
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 `;
 
@@ -153,6 +182,7 @@ const ImageContainer = styled.div`
   width: 100%;
   height: 300px;
   overflow: hidden;
+  border-radius: 20px;
 
   @media (max-width: 48em) {
     height: 250px;
@@ -163,12 +193,13 @@ const Image = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 20px;
   
-  /* Scale up image and apply dark inner shadow on hover */
+  /* Enhanced hover effects */
   ${GridItem}:hover & {
-    transform: scale(1.1);
-    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.4);
+    transform: scale(1.08) rotate(1deg);
+    filter: brightness(1.1) contrast(1.05);
   }
 `;
 
@@ -177,23 +208,25 @@ const Overlay = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  background: transparent;
   /* Default text color is the dark theme text for readability */
   color: ${(props) => props.theme.text};
   padding: 2rem 1.5rem 1.5rem;
   transform: translateY(0);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
   z-index: 2;
+  border-radius: 0 0 20px 20px;
 `;
 
 const ItemTitle = styled.h3`
   font-size: ${(props) => props.theme.fontlg};
   font-weight: 600;
   margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 
   /* Switch to light/brand color on hover only if default text is dark */
   ${GridItem}:hover & {
     color: ${({ theme }) => (isColorLight(theme.text) ? theme.text : theme.body)};
+    transform: translateY(-2px);
   }
 `;
 
@@ -201,9 +234,11 @@ const ItemDescription = styled.p`
   font-size: ${(props) => props.theme.fontsm};
   opacity: 0.9;
   line-height: 1.4;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 
   ${GridItem}:hover & {
     color: ${({ theme }) => (isColorLight(theme.text) ? theme.text : theme.body)};
+    opacity: 1;
   }
 `;
 
@@ -211,22 +246,25 @@ const Price = styled.span`
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: ${(props) => props.theme.text};
+  background: linear-gradient(135deg, ${(props) => props.theme.text}, ${(props) => props.theme.text}dd);
   color: ${(props) => props.theme.body};
   padding: 0.5rem 1rem;
   font-weight: 600;
   font-size: ${(props) => props.theme.fontsm};
-  transform: scale(0);
-  transition: transform 0.3s ease;
+  transform: scale(0) rotate(-10deg);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   
   ${GridItem}:hover & {
-    transform: scale(1);
-    background: ${(props) => props.theme.body};
+    transform: scale(1) rotate(0deg);
+    background: linear-gradient(135deg, ${(props) => props.theme.body}, ${(props) => props.theme.body}dd);
     color: ${(props) => props.theme.text};
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   }
 
   @media (max-width: 48em) {
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
   }
 `;
 

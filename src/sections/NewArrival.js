@@ -48,7 +48,7 @@ const Overlay = styled.div`
   box-shadow: none;
   border: none;
   z-index: 11;
-  overflow: hidden;
+  overflow: visible;
 
   @media (max-width: 70em) {
     width: 40vw;
@@ -74,8 +74,8 @@ const Title = styled.h1`
   font-size: ${(props) => props.theme.fontxxxl};
   font-family: "Kaushan Script";
   font-weight: 300;
-  text-shadow: 1px 1px 1px ${(props) => (isColorLight(props.theme.text) ? '#1a1a1a' : props.theme.text)};
-  color: ${({ theme }) => (isColorLight(theme.text) ? '#1a1a1a' : theme.text)};
+  text-shadow: 1px 1px 1px ${(props) => props.theme.body};
+  color: ${(props) => props.theme.text};
   position: absolute;
   top: 1rem;
   left: 5%;
@@ -146,10 +146,20 @@ const Item = styled.div`
     width: 100%;
     height: auto;
     z-index: 5;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
+  
+  &:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+  }
+  
   h2 {
     text-align: center;
     color: ${(props) => props.theme.greyDark};
+    margin-top: 1rem;
   }
 `;
 

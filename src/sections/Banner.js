@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import TextData from "../TextData.json";
+import { useLocomotiveScroll } from "react-locomotive-scroll";
 
 const Section = styled.section`
   min-height: 100vh;
@@ -59,6 +60,14 @@ const BannerComponent = styled.h1`
 `;
 
 const Banner = () => {
+  const { scroll } = useLocomotiveScroll();
+
+  useEffect(() => {
+    if (scroll) {
+      scroll.update();
+    }
+  }, [scroll]);
+  
   const bannerLines = TextData.bannerText || [];
   // Scroll speeds to match the original alternating effect
   const scrollSpeeds = [8, -6, 6, -4, 6];

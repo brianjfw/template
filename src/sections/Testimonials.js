@@ -105,16 +105,17 @@ const TestimonialCard = styled(motion.div)`
   background: ${(props) => props.theme.body};
   padding: 2.5rem;
   margin-right: 3rem;
+  border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
   &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
     border: 1px solid ${(props) => props.theme.text};
   }
 
@@ -296,8 +297,8 @@ const Testimonials = () => {
         }
       });
 
-      // Calculate scroll distance more accurately
-      let scrollDistance = scrollingElement.scrollWidth - window.innerWidth;
+      // Use the full width of the scrolling content
+      let scrollDistance = scrollingElement.scrollWidth;
       // More natural end value calculation based on actual content width
       let endValue = `+=${scrollDistance}`;
 
