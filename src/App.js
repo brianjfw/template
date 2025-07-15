@@ -27,24 +27,26 @@ function App() {
         <LocomotiveScrollProvider
           options={{
             smooth: true,
-            lerp: 0.1,
-            multiplier: 1,
+            lerp: 0.05,
+            multiplier: 0.8,
             smartphone: { 
               smooth: true,
-              lerp: 0.1,
-              multiplier: 1,
-              touchMultiplier: 2,
-              breakpoint: 768
+              lerp: 0.05,
+              multiplier: 0.8,
+              touchMultiplier: 3,
+              breakpoint: 768,
+              // Disable complex animations on mobile
+              smoothMobile: true
             },
             tablet: { 
               smooth: true,
-              lerp: 0.1,
-              multiplier: 1,
-              touchMultiplier: 2,
+              lerp: 0.05,
+              multiplier: 0.8,
+              touchMultiplier: 3,
               breakpoint: 1024
             },
             reloadOnContextChange: true,
-            touchMultiplier: 2,
+            touchMultiplier: 3,
             smoothMobile: true,
             getDirection: true,
             getSpeed: true,

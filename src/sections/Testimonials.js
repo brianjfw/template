@@ -286,67 +286,79 @@ const Testimonials = () => {
 
     if (!element || !scrollingElement) return;
 
-    let pinWrapWidth = scrollingElement.offsetWidth;
-    let t1 = gsap.timeline();
+    // Check if we're on mobile
+    const isMobile = window.innerWidth <= 768;
 
-    const setupAnimation = () => {
-      // Clear any existing triggers for this component
-      ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-          trigger.kill();
-        }
-      });
+    // Only set up complex ScrollTrigger on desktop
+    if (!isMobile) {
+      let t1 = gsap.timeline();
 
-      // Use the full width of the scrolling content
-      let scrollDistance = scrollingElement.scrollWidth;
-      // More natural end value calculation based on actual content width
-      let endValue = `+=${scrollDistance}`;
-
-      // Pin the section and set up the horizontal scroll
-      ScrollTrigger.create({
-        trigger: element,
-        start: "top top",
-        end: endValue,
-        scroller: ".App",
-        scrub: 0.5, // Slower, more controlled scrub
-        pin: true,
-        anticipatePin: 1,
-        refreshPriority: -1,
-        onToggle: self => {
-          // Force refresh on toggle for mobile
-          if (window.innerWidth <= 768) {
-            ScrollTrigger.refresh();
+      const setupAnimation = () => {
+        // Clear any existing triggers for this component
+        ScrollTrigger.getAll().forEach(trigger => {
+          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
+            trigger.kill();
           }
-        },
-        animation: gsap.to(scrollingElement, {
-          x: -scrollDistance,
-          ease: "none",
-        })
-      });
+        });
 
-      ScrollTrigger.refresh();
-    };
+        // Use the full width of the scrolling content
+        let scrollDistance = scrollingElement.scrollWidth;
+        // More natural end value calculation based on actual content width
+        let endValue = `+=${scrollDistance}`;
 
-    // A small delay to ensure other elements are loaded
-    const timeoutId = setTimeout(setupAnimation, 1000);
+        // Pin the section and set up the horizontal scroll
+        ScrollTrigger.create({
+          trigger: element,
+          start: "top top",
+          end: endValue,
+          scroller: ".App",
+          scrub: 0.5, // Slower, more controlled scrub
+          pin: true,
+          anticipatePin: 1,
+          refreshPriority: -1,
+          animation: gsap.to(scrollingElement, {
+            x: -scrollDistance,
+            ease: "none",
+          })
+        });
 
-    // Handle resize for mobile orientation changes
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-        }, 250);
-      }
-    };
+        ScrollTrigger.refresh();
+      };
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
+      // A small delay to ensure other elements are loaded
+      const timeoutId = setTimeout(setupAnimation, 1000);
 
-    return () => { 
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-      t1.kill(); 
+      // Handle resize for mobile orientation changes
+      const handleResize = () => {
+        if (window.innerWidth <= 768) {
+          // Kill all triggers on mobile
+          t1.kill();
+          ScrollTrigger.getAll().forEach(trigger => {
+            if (trigger.trigger === element || trigger.trigger === scrollingElement) {
+              trigger.kill();
+            }
+          });
+        }
+      };
+
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
+
+      return () => { 
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('orientationchange', handleResize);
+        t1.kill(); 
+        ScrollTrigger.getAll().forEach(trigger => {
+          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
+            trigger.kill();
+          }
+        });
+      };
+    }
+
+    // On mobile, just clean up any existing triggers
+    return () => {
       ScrollTrigger.getAll().forEach(trigger => {
         if (trigger.trigger === element || trigger.trigger === scrollingElement) {
           trigger.kill();

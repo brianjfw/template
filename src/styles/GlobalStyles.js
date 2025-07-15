@@ -51,6 +51,31 @@ body{
     touch-action: pan-y;
     /* Prevent horizontal scroll */
     overflow-x: hidden;
+    /* Ensure proper mobile scrolling */
+    overscroll-behavior: none;
+    /* Prevent pull-to-refresh */
+    overscroll-behavior-y: none;
+}
+
+/* Force mobile scroll behavior */
+@media (max-width: 768px) {
+  [data-scroll-container] {
+    /* Ensure natural scroll momentum */
+    -webkit-overflow-scrolling: touch !important;
+    /* Allow vertical scrolling only */
+    touch-action: pan-y !important;
+    /* Prevent any scroll interference */
+    overscroll-behavior: none !important;
+  }
+  
+  .App {
+    /* Ensure natural scroll momentum */
+    -webkit-overflow-scrolling: touch !important;
+    /* Allow vertical scrolling only */
+    touch-action: pan-y !important;
+    /* Prevent any scroll interference */
+    overscroll-behavior: none !important;
+  }
 }
 
 /* Ensure smooth scrolling on all devices */

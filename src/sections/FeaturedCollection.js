@@ -298,67 +298,80 @@ const FeaturedCollection = () => {
 
     if (!element) return;
 
-    let t1 = gsap.timeline();
+    // Check if we're on mobile
+    const isMobile = window.innerWidth <= 768;
 
-    const setupAnimation = () => {
-      // Clear any existing triggers for this component
-      ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === element) {
-          trigger.kill();
-        }
-      });
+    // Only set up complex ScrollTrigger on desktop
+    if (!isMobile) {
+      let t1 = gsap.timeline();
 
-      t1.fromTo(
-        element.querySelectorAll(".floating-element"),
-        {
-          y: 100,
-          opacity: 0,
-        },
-        {
-          y: 0,
-          opacity: 0.1,
-          duration: 1,
-          stagger: 0.2,
-          scrollTrigger: {
-            trigger: element,
-            start: "top center",
-            end: "bottom center",
-            scroller: ".App",
-            scrub: 1,
-            refreshPriority: -1,
-            onToggle: self => {
-              // Force refresh on toggle for mobile
-              if (window.innerWidth <= 768) {
-                ScrollTrigger.refresh();
-              }
-            }
+      const setupAnimation = () => {
+        // Clear any existing triggers for this component
+        ScrollTrigger.getAll().forEach(trigger => {
+          if (trigger.trigger === element) {
+            trigger.kill();
+          }
+        });
+
+        t1.fromTo(
+          element.querySelectorAll(".floating-element"),
+          {
+            y: 100,
+            opacity: 0,
           },
+          {
+            y: 0,
+            opacity: 0.1,
+            duration: 1,
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: element,
+              start: "top center",
+              end: "bottom center",
+              scroller: ".App",
+              scrub: 1,
+              refreshPriority: -1,
+            },
+          }
+        );
+
+        ScrollTrigger.refresh();
+      };
+
+      // Setup with a small delay to ensure elements are ready
+      const timeoutId = setTimeout(setupAnimation, 1000);
+
+      // Handle resize for mobile orientation changes
+      const handleResize = () => {
+        if (window.innerWidth <= 768) {
+          // Kill all triggers on mobile
+          t1.kill();
+          ScrollTrigger.getAll().forEach(trigger => {
+            if (trigger.trigger === element) {
+              trigger.kill();
+            }
+          });
         }
-      );
+      };
 
-      ScrollTrigger.refresh();
-    };
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
 
-    // Setup with a small delay to ensure elements are ready
-    const timeoutId = setTimeout(setupAnimation, 1000);
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('orientationchange', handleResize);
+        t1.kill();
+        ScrollTrigger.getAll().forEach(trigger => {
+          if (trigger.trigger === element) {
+            trigger.kill();
+          }
+        });
+      };
+    }
 
-    // Handle resize for mobile orientation changes
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setTimeout(() => {
-          ScrollTrigger.refresh();
-        }, 250);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-
+    // On mobile, just clean up any existing triggers
     return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-      t1.kill();
       ScrollTrigger.getAll().forEach(trigger => {
         if (trigger.trigger === element) {
           trigger.kill();
