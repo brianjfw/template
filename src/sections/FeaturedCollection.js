@@ -208,8 +208,8 @@ const Overlay = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  /* Default text color is the dark theme text for readability */
-  color: ${(props) => props.theme.text};
+  /* Force white text for better readability */
+  color: #ffffff;
   padding: 2rem 1.5rem 1.5rem;
   transform: translateY(0);
   transition: all 0.3s ease;
@@ -221,11 +221,11 @@ const ItemTitle = styled.h3`
   font-size: ${(props) => props.theme.fontlg};
   font-weight: 600;
   margin-bottom: 0.5rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
 
-  /* Switch to light/brand color on hover only if default text is dark */
+  /* Keep white text on hover */
   ${GridItem}:hover & {
-    color: ${({ theme }) => (isColorLight(theme.text) ? theme.text : theme.body)};
+    color: #ffffff;
     transform: translateY(-2px);
   }
 `;
@@ -234,10 +234,10 @@ const ItemDescription = styled.p`
   font-size: ${(props) => props.theme.fontsm};
   opacity: 0.9;
   line-height: 1.4;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
 
   ${GridItem}:hover & {
-    color: ${({ theme }) => (isColorLight(theme.text) ? theme.text : theme.body)};
+    color: #ffffff;
     opacity: 1;
   }
 `;
@@ -298,80 +298,60 @@ const FeaturedCollection = () => {
 
     if (!element) return;
 
-    // Check if we're on mobile
-    const isMobile = window.innerWidth <= 768;
+    let t1 = gsap.timeline();
 
-    // Only set up complex ScrollTrigger on desktop
-    if (!isMobile) {
-      let t1 = gsap.timeline();
-
-      const setupAnimation = () => {
-        // Clear any existing triggers for this component
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element) {
-            trigger.kill();
-          }
-        });
-
-        t1.fromTo(
-          element.querySelectorAll(".floating-element"),
-          {
-            y: 100,
-            opacity: 0,
-          },
-          {
-            y: 0,
-            opacity: 0.1,
-            duration: 1,
-            stagger: 0.2,
-            scrollTrigger: {
-              trigger: element,
-              start: "top center",
-              end: "bottom center",
-              scroller: ".App",
-              scrub: 1,
-              refreshPriority: -1,
-            },
-          }
-        );
-
-        ScrollTrigger.refresh();
-      };
-
-      // Setup with a small delay to ensure elements are ready
-      const timeoutId = setTimeout(setupAnimation, 1000);
-
-      // Handle resize for mobile orientation changes
-      const handleResize = () => {
-        if (window.innerWidth <= 768) {
-          // Kill all triggers on mobile
-          t1.kill();
-          ScrollTrigger.getAll().forEach(trigger => {
-            if (trigger.trigger === element) {
-              trigger.kill();
-            }
-          });
+    const setupAnimation = () => {
+      // Clear any existing triggers for this component
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element) {
+          trigger.kill();
         }
-      };
+      });
 
-      window.addEventListener('resize', handleResize);
-      window.addEventListener('orientationchange', handleResize);
+      t1.fromTo(
+        element.querySelectorAll(".floating-element"),
+        {
+          y: 100,
+          opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 0.1,
+          duration: 1,
+          stagger: 0.2,
+          scrollTrigger: {
+            trigger: element,
+            start: "top center",
+            end: "bottom center",
+            scroller: ".App",
+            scrub: 1,
+            refreshPriority: -1,
+          },
+        }
+      );
 
-      return () => {
-        clearTimeout(timeoutId);
-        window.removeEventListener('resize', handleResize);
-        window.removeEventListener('orientationchange', handleResize);
-        t1.kill();
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element) {
-            trigger.kill();
-          }
-        });
-      };
-    }
+      ScrollTrigger.refresh();
+    };
 
-    // On mobile, just clean up any existing triggers
+    // Setup with a small delay to ensure elements are ready
+    const timeoutId = setTimeout(setupAnimation, 1000);
+
+    // Handle resize
+    const handleResize = () => {
+      // Refresh animations on resize
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
     return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      t1.kill();
       ScrollTrigger.getAll().forEach(trigger => {
         if (trigger.trigger === element) {
           trigger.kill();

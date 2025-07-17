@@ -109,6 +109,39 @@ const generateColorPalette = (brandHex) => {
 const brandColor = MediaData.color || '#F5E6E0';
 const palette = generateColorPalette(brandColor);
 
+// Light theme that always uses dark text
+export const light = {
+    body: '#ffffff',
+    text: '#2d3748',
+    textSecondary: '#718096',
+    bodyRgba: '255,255,255',
+    textRgba: '45,55,72',
+    brandColor: brandColor,
+    brandColorRgba: hexToRgba(brandColor),
+    
+    grey: '#f7fafc',
+    greyDark: '#a0aec0',
+    greyLight: '#e2e8f0',
+    accent: brandColor,
+    accentLight: hexToRgba(brandColor) + ',0.1',
+    
+    // Shadows and borders
+    shadow: '0,0,0,0.1',
+    shadowLight: '0,0,0,0.05',
+    border: '#e2e8f0',
+    
+    fontxs: '0.75em',
+    fontsm: '0.875em', 
+    fontmd: '1em', 
+    fontlg: '1.25em', 
+    fontxl: '2em', 
+    fontxxl: '3em', 
+    fontxxxl: '5em', 
+    fontBig: '10em', 
+
+    navHeight: '5rem'
+};
+
 // Main adaptive theme
 export const adaptive = {
     body: palette.body,

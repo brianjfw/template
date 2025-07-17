@@ -22,12 +22,7 @@ const ScrollTriggerProxy = () => {
         return arguments.length
           ? scroll.scrollTo(value, { 
               duration: 0, 
-              disableLerp: true,
-              // Ensure smooth scrolling on mobile
-              ...(isMobile && { 
-                duration: 0.1,
-                disableLerp: false 
-              })
+              disableLerp: true
             })
           : scroll.scroll.instance.scroll.y;
       },

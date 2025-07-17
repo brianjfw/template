@@ -1,408 +1,324 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
-import styled from "styled-components";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
-import TextData from "../TextData.json";
+import React from 'react';
+import styled from 'styled-components';
+import { motion } from 'framer-motion';
+import MediaData from '../MediaData.json';
+import { light } from '../styles/Themes';
+import TextData from '../TextData.json';
 
-// --- STYLED COMPONENTS (with responsive adjustments) ---
+// --- STYLED COMPONENTS ---
 
 const Section = styled.section`
-  min-height: 100vh;
+  min-height: 80vh;
   height: auto;
-  width: 100vw;
-  margin: 0 auto;
-  overflow: hidden;
-  
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-
-  position: relative;
-`;
-
-const Title = styled.h1`
-  font-size: ${(props) => props.theme.fontxxxl};
-  font-family: "Kaushan Script";
-  font-weight: 300;
-  text-shadow: 1px 1px 1px ${(props) => props.theme.body};
-  color: ${(props) => props.theme.text};
-    position: absolute;
-  top: 3rem;
-  left: 5%;
-  z-index: 11;
-
-  @media (max-width: 64em) {
-    font-size: ${(props) => props.theme.fontxxl};
-  }
-  @media (max-width: 48em) {
-    font-size: ${(props) => props.theme.fontxl};
-  }
-`;
-
-const Left = styled.div`
-  width: 35%;
-  background-color: ${(props) => props.theme.body};
-  color: ${(props) => props.theme.text};
-
-  min-height: 100vh;
-  z-index: 5;
-
-  position: fixed;
-  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 4rem 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  background-color: #ffffff;
 
-  p {
-    font-size: ${(props) => props.theme.fontlg};
-    font-weight: 300;
-    width: 80%;
-    margin: 0 auto;
-  }
-
-  @media (max-width: 64em) {
-    p {
-      font-size: ${(props) => props.theme.fontmd};
-    }
-  }
-
-  @media (max-width: 48em) {
-    width: 40%;
-    p {
-      font-size: ${(props) => props.theme.fontsm};
-    }
-  }
-
-  @media (max-width: 30em) {
-    p {
-      font-size: ${(props) => props.theme.fontxs};
-    }
+  @media (max-width: 768px) {
+    padding: 3rem 1rem;
   }
 `;
 
-const Right = styled.div`
-  position: absolute;
-  left: 35%;
-  padding-left: 30%;
-  min-height: 100vh;
-
-  background-color: #fff;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  h1 {
-    width: 5rem;
-    margin: 0 2rem;
-  }
+const HeaderContainer = styled.div`
+  text-align: center;
+  margin-bottom: 4rem;
 `;
 
-const TestimonialCard = styled(motion.div)`
-  width: 30rem;
-  min-height: 400px;
-  background: ${(props) => props.theme.body};
-  padding: 2.5rem;
-  margin-right: 3rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-  &:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-    border: 1px solid ${(props) => props.theme.text};
-  }
-
-  @media (max-width: 64em) {
-    width: 28rem;
-    padding: 2.25rem;
-    margin-right: 2.5rem;
-    min-height: 380px;
-  }
-
-  @media (max-width: 48em) {
-    width: 80vw;
-    max-width: 22rem;
-    min-width: 18rem;
-    padding: 1.5rem;
-    margin-right: 1.5rem;
-    min-height: 320px;
-  }
-
-  @media (max-width: 30em) {
-    width: 85vw;
-    max-width: 20rem;
-    min-width: 16rem;
-    padding: 1.25rem;
-    margin-right: 1rem;
-    min-height: 280px;
-  }
-`;
-
-const QuoteIcon = styled.div`
-  font-size: 3rem;
-  color: ${(props) => props.theme.text};
-  opacity: 0.3;
-  margin-bottom: 1rem;
-  font-family: serif;
-  
-  @media (max-width: 48em) {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  @media (max-width: 30em) {
-    font-size: 1.75rem;
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const TestimonialText = styled.p`
-  font-size: ${(props) => props.theme.fontmd};
-  line-height: 1.6;
-  color: ${(props) => props.theme.text};
-  margin-bottom: 2rem;
-  font-style: italic;
-  flex-grow: 1; // Allows the text to take up available space
-  
-  @media (max-width: 48em) {
-    font-size: ${(props) => props.theme.fontsm};
-    line-height: 1.5;
-    margin-bottom: 1.25rem;
-  }
-  
-  @media (max-width: 30em) {
-    font-size: ${(props) => props.theme.fontxs};
-    line-height: 1.4;
-    margin-bottom: 1rem;
-  }
-`;
-
-const CustomerInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: auto; // Pushes this to the bottom of the card
-`;
-
-const Avatar = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, ${(props) => props.theme.text}, ${(props) => props.theme.grey});
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: ${(props) => props.theme.body};
-  font-size: ${(props) => props.theme.fontlg};
-  flex-shrink: 0;
-  
-  @media (max-width: 48em) {
-    width: 40px;
-    height: 40px;
-    font-size: ${(props) => props.theme.fontmd};
-  }
-  
-  @media (max-width: 30em) {
-    width: 35px;
-    height: 35px;
-    font-size: ${(props) => props.theme.fontsm};
-  }
-`;
-
-const CustomerDetails = styled.div`
-  flex: 1;
-`;
-
-const CustomerName = styled.h4`
-  font-size: ${(props) => props.theme.fontmd};
+const Tag = styled.span`
+  display: inline-block;
+  color: ${MediaData.color};
+  font-size: 1rem;
   font-weight: 600;
-  color: ${(props) => props.theme.text};
-  margin-bottom: 0.25rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid ${MediaData.color};
+  border-radius: 12px;
+`;
+
+const MainHeading = styled.h2`
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+`;
+
+const SubHeading = styled.p`
+  font-size: 1.125rem;
+  color: #555;
+  margin-top: 1rem;
+`;
+
+const TestimonialsGrid = styled.div`
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
   
-  @media (max-width: 48em) {
-    font-size: ${(props) => props.theme.fontsm};
-  }
-  
-  @media (max-width: 30em) {
-    font-size: ${(props) => props.theme.fontxs};
+  grid-template-areas:
+    "large medium"
+    "large smalls";
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "large"
+      "medium"
+      "smalls";
   }
 `;
 
-const CustomerLocation = styled.p`
-  font-size: ${(props) => props.theme.fontsm};
-  color: ${(props) => props.theme.text};
-  opacity: 0.7;
-  
-  @media (max-width: 48em) {
-    font-size: ${(props) => props.theme.fontxs};
+const SmallCardsContainer = styled.div`
+  grid-area: smalls;
+  display: flex;
+  gap: 2rem;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
   }
+`;
+
+const Card = styled(motion.div).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isDark'
+})`
+  background: ${({ isDark }) => (isDark ? '#1C1C1E' : light.body)};
+  color: ${({ isDark }) => (isDark ? '#FFFFFF' : light.text)};
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
   
-  @media (max-width: 30em) {
-    font-size: ${(props) => props.theme.fontxxs};
+  &.large {
+    grid-area: large;
   }
+  &.medium {
+    grid-area: medium;
+  }
+  &.small {
+    flex: 1;
+  }
+
+  /* Ensure all text elements in dark cards are white, and in light cards use theme colors */
+  ${({ isDark }) => isDark ? `
+    h3, h4, p, span {
+      color: #FFFFFF !important;
+    }
+    .stars {
+      color: #ffb400 !important;
+    }
+  ` : `
+    h3, h4 {
+      color: ${light.text} !important;
+    }
+    p, span {
+      color: ${light.textSecondary} !important;
+    }
+    .stars {
+      color: #ffb400 !important;
+    }
+  `}
+`;
+
+const MetricSection = styled.div`
+  margin-bottom: 1.5rem;
+  h3 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1;
+  }
+  p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+  }
+`;
+
+const Quote = styled.p`
+  font-size: 1rem;
+  line-height: 1.6;
+  font-style: italic;
+  margin-top: 1rem;
+  flex-grow: 1;
+
+  &::before {
+    content: "“";
+    font-size: 2.5rem;
+    font-family: "Kaushan Script";
+    color: ${MediaData.color};
+    display: block;
+    margin-bottom: -1.5rem;
+    margin-left: -1rem;
+  }
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+`;
+
+const Avatar = styled.img`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const UserDetails = styled.div`
+  flex-grow: 1;
+  h4 {
+    font-weight: 600;
+  }
+  p {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+`;
+
+const CompanyLogo = styled.div`
+  font-weight: bold;
+  font-size: 1.5rem;
+  opacity: 0.8;
+  color: ${MediaData.color};
+  // In a real app, this would be an <img>
+`;
+
+const BottomBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 2rem;
+  }
+`;
+
+const SatisfiedClients = styled.div`
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
 `;
 
 const Rating = styled.div`
   display: flex;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  .stars {
+    color: #ffb400;
+  }
+  .review-text {
+    font-size: 0.9rem;
+    color: #666;
+  }
 `;
 
-const Star = styled.span`
-  color: #ffd700;
-  font-size: ${(props) => props.theme.fontsm};
+const ViewAllButton = styled.a`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
+// --- DYNAMIC DATA ---
+const testimonialsData = TextData.testimonialsSection2.testimonials.map((testimonial, index) => {
+  // Add hardcoded avatar URLs based on index
+  const avatarUrls = [
+    'https://randomuser.me/api/portraits/men/32.jpg',
+    'https://randomuser.me/api/portraits/women/44.jpg',
+    'https://randomuser.me/api/portraits/men/46.jpg',
+    'https://randomuser.me/api/portraits/women/68.jpg'
+  ];
+  
+  return {
+    ...testimonial,
+    avatar: avatarUrls[index]
+  };
+});
 
+// --- COMPONENTS ---
 
-
-
-
-
-
-// --- MAIN COMPONENT (with responsive logic) ---
+const TestimonialCard = ({ testimonial }) => {
+  return (
+    <Card
+      isDark={testimonial.isDark}
+      className={testimonial.size}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6 }}
+    >
+      {testimonial.metric && (
+        <MetricSection>
+          <h3>{testimonial.metric}</h3>
+          <p>{testimonial.metricDescription}</p>
+        </MetricSection>
+      )}
+      <Quote>
+        {testimonial.quote.split(/\n\n+/).map((para, idx) => (
+          <span key={idx} style={{ display: 'block', marginBottom: idx < testimonial.quote.split(/\n\n+/).length - 1 ? '1em' : 0 }}>{para}</span>
+        ))}
+      </Quote>
+      <UserInfo>
+        <Avatar src={testimonial.avatar} alt={testimonial.name} />
+        <UserDetails>
+          <h4>{testimonial.name}</h4>
+          <p>{testimonial.title}</p>
+        </UserDetails>
+        {testimonial.logo && <CompanyLogo>{testimonial.logo}</CompanyLogo>}
+      </UserInfo>
+    </Card>
+  );
+};
 
 const Testimonials = () => {
-  gsap.registerPlugin(ScrollTrigger);
-  const ref = useRef(null);
-  const horizontalRef = useRef(null);
-
-  const sectionData = TextData.testimonialsSection;
-  const testimonials = sectionData.testimonials;
-  const stats = sectionData.stats;
-  
-  // GSAP animations
-  useLayoutEffect(() => {
-    let element = ref.current;
-    let scrollingElement = horizontalRef.current;
-
-    if (!element || !scrollingElement) return;
-
-    // Check if we're on mobile
-    const isMobile = window.innerWidth <= 768;
-
-    // Only set up complex ScrollTrigger on desktop
-    if (!isMobile) {
-      let t1 = gsap.timeline();
-
-      const setupAnimation = () => {
-        // Clear any existing triggers for this component
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-            trigger.kill();
-          }
-        });
-
-        // Use the full width of the scrolling content
-        let scrollDistance = scrollingElement.scrollWidth;
-        // More natural end value calculation based on actual content width
-        let endValue = `+=${scrollDistance}`;
-
-        // Pin the section and set up the horizontal scroll
-        ScrollTrigger.create({
-          trigger: element,
-          start: "top top",
-          end: endValue,
-          scroller: ".App",
-          scrub: 0.5, // Slower, more controlled scrub
-          pin: true,
-          anticipatePin: 1,
-          refreshPriority: -1,
-          animation: gsap.to(scrollingElement, {
-            x: -scrollDistance,
-            ease: "none",
-          })
-        });
-
-        ScrollTrigger.refresh();
-      };
-
-      // A small delay to ensure other elements are loaded
-      const timeoutId = setTimeout(setupAnimation, 1000);
-
-      // Handle resize for mobile orientation changes
-      const handleResize = () => {
-        if (window.innerWidth <= 768) {
-          // Kill all triggers on mobile
-          t1.kill();
-          ScrollTrigger.getAll().forEach(trigger => {
-            if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-              trigger.kill();
-            }
-          });
-        }
-      };
-
-      window.addEventListener('resize', handleResize);
-      window.addEventListener('orientationchange', handleResize);
-
-      return () => { 
-        clearTimeout(timeoutId);
-        window.removeEventListener('resize', handleResize);
-        window.removeEventListener('orientationchange', handleResize);
-        t1.kill(); 
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-            trigger.kill();
-          }
-        });
-      };
-    }
-
-    // On mobile, just clean up any existing triggers
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-          trigger.kill();
-        }
-      });
-    };
-  }, []);
-
-  const renderTestimonialCard = (testimonial, index) => (
-    <TestimonialCard
-      key={index}
-      initial={{ filter: "grayscale(100%)" }}
-      whileInView={{ filter: "grayscale(0%)" }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: false, amount: 0.3, margin: "0px 0px -100px 0px" }}
-    >
-      <QuoteIcon>"</QuoteIcon>
-      <TestimonialText>{testimonial.text}</TestimonialText>
-      <CustomerInfo>
-        <Avatar>{testimonial.avatar}</Avatar>
-        <CustomerDetails>
-          <CustomerName>{testimonial.name}</CustomerName>
-          <CustomerLocation>{testimonial.location}</CustomerLocation>
-          <Rating>
-            {[...Array(testimonial.rating)].map((_, i) => <Star key={i}>★</Star>)}
-          </Rating>
-        </CustomerDetails>
-      </CustomerInfo>
-    </TestimonialCard>
-  );
-
   return (
-    <Section ref={ref} id="testimonials">
-      <Title data-scroll data-scroll-speed="-1">
-        {sectionData.title}
-      </Title>
-      <Left>
-        <p>{sectionData.subtitle}</p>
-      </Left>
-      <Right ref={horizontalRef}>
-        {testimonials.map((testimonial, idx) => (
-          renderTestimonialCard(testimonial, idx)
-        ))}
-      </Right>
+    <Section>
+      <HeaderContainer>
+        <Tag>{TextData.testimonialsSection2.tag}</Tag>
+        <MainHeading>
+          {TextData.testimonialsSection2.title}
+        </MainHeading>
+        <SubHeading>
+          {TextData.testimonialsSection2.subtitle}
+        </SubHeading>
+      </HeaderContainer>
+
+      <TestimonialsGrid>
+        <TestimonialCard testimonial={testimonialsData[0]} />
+        <TestimonialCard testimonial={testimonialsData[1]} />
+        <SmallCardsContainer>
+          <TestimonialCard testimonial={testimonialsData[2]} />
+          <TestimonialCard testimonial={testimonialsData[3]} />
+        </SmallCardsContainer>
+      </TestimonialsGrid>
+
+      <BottomBar>
+        <SatisfiedClients>{TextData.testimonialsSection2.bottomBar.satisfiedClients}</SatisfiedClients>
+        <Rating>
+          <span className="stars">★★★★★</span>
+          <span className="review-text">{TextData.testimonialsSection2.bottomBar.rating}</span>
+        </Rating>
+        <ViewAllButton href="#">{TextData.testimonialsSection2.bottomBar.viewAllButton}</ViewAllButton>
+      </BottomBar>
     </Section>
   );
 };

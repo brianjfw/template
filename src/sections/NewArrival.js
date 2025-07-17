@@ -5,6 +5,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 
 import TextData from "../TextData.json";
 import MediaData from "../MediaData.json";
+import { LightningBolt, HandDrawnArrow, Squiggle, FourPetals, StarIcon } from "../components/Icons";
 
 // Helper to determine if a hex color is light (same as FeaturedCollection)
 const isColorLight = (hex) => {
@@ -32,6 +33,7 @@ const Section = styled.section`
   align-items: center;
 
   position: relative;
+  overflow: hidden;
 
   /* background-color: yellow; */
 `;
@@ -40,15 +42,9 @@ const Overlay = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
   width: 30vw;
   height: 100vh;
-
-  /* Removed outline */
-  box-shadow: none;
-  border: none;
   z-index: 11;
-  overflow: visible;
 
   @media (max-width: 70em) {
     width: 40vw;
@@ -56,8 +52,6 @@ const Overlay = styled.div`
   }
   @media (max-width: 64em) {
     width: 50vw;
-    /* Removed outline */
-    box-shadow: none;
     height: 100vh;
   }
   @media (max-width: 48em) {
@@ -89,51 +83,104 @@ const Title = styled.h1`
   }
 `;
 
-const Text = styled.div`
-  width: 20%;
-  font-size: ${(props) => props.theme.fontlg};
-  font-weight: 300;
-  color: ${({ theme }) => (isColorLight(theme.text) ? '#2c2c2c' : theme.text)};
+const LeftContainer = styled.div`
+  width: 25%;
   position: absolute;
-  padding: 2rem;
-  top: 0;
-  right: 0;
+  left: 5%;
+  top: 20%;
   z-index: 11;
-
-  p {
-    color: ${({ theme }) => (isColorLight(theme.text) ? '#2c2c2c' : theme.text)};
-  }
+  color: ${({ theme }) => (isColorLight(theme.text) ? '#2c2c2c' : theme.text)};
 
   @media (max-width: 48em) {
     display: none;
   }
+`;
 
-  @media (max-width: 30em) {
-    font-size: ${(props) => props.theme.fontxs};
+const RightContainer = styled.div`
+  width: 25%;
+  position: absolute;
+  right: 5%;
+  top: 25%;
+  z-index: 11;
+  color: ${({ theme }) => (isColorLight(theme.text) ? '#2c2c2c' : theme.text)};
+
+  @media (max-width: 48em) {
+    display: none;
   }
 `;
+
+const Discount = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: ${(props) => props.theme.fontxl};
+  font-weight: 600;
+  margin-bottom: 1rem;
+
+  svg {
+    margin-right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+`;
+
+const Description = styled.p`
+  font-size: ${(props) => props.theme.fontsm};
+  line-height: 1.5;
+  margin-bottom: 2rem;
+`;
+
+const CircleButton = styled.div`
+  display: flex;
+  align-items: center;
+  
+  img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: -15px;
+  }
+
+  .explore-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #ff7f50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+`;
+
+const ShopNowButton = styled.button`
+  background-color: transparent;
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  font-size: ${(props) => props.theme.fontmd};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  
+  svg {
+    margin-left: 0.5rem;
+  }
+`;
+
 const Container = styled.div`
-  position: absolute;
-  top: 0%;
-  left: 50%;
-  transform: translate(-50%, 0);
+  position: relative;
   width: 100%;
   height: auto;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  @media (max-width: 64em) {
-    width: 100%;
-  }
-  @media (max-width: 48em) {
-    width: 100%;
-  }
-  @media (max-width: 30em) {
-    width: 100%;
-  }
+  overflow: hidden;
 `;
 
 const Item = styled.div`
@@ -141,25 +188,10 @@ const Item = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 5rem 0;
   img {
     width: 100%;
     height: auto;
     z-index: 5;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:hover img {
-    transform: scale(1.05);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-  }
-  
-  h2 {
-    text-align: center;
-    color: ${(props) => props.theme.greyDark};
-    margin-top: 1rem;
   }
 `;
 
@@ -167,7 +199,6 @@ const Product = ({ img, title = "" }) => {
   return (
     <Item>
       <img src={img} alt={title} loading="eager" decoding="async" />
-      <h2>{title}</h2>
     </Item>
   );
 };
@@ -192,132 +223,130 @@ const NewArrival = () => {
 
     if (!element || !scrollingElement) return;
 
-    // Check if we're on mobile
-    const isMobile = window.innerWidth <= 768;
+    let t1 = gsap.timeline();
 
-    // Only set up complex ScrollTrigger on desktop
-    if (!isMobile) {
-      let t1 = gsap.timeline();
+    const setupAnimation = () => {
+      // Clear any existing triggers for this component
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === element || trigger.trigger === scrollingElement) {
+          trigger.kill();
+        }
+      });
 
-      const setupAnimation = () => {
-        // Clear any existing triggers for this component
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-            trigger.kill();
-          }
-        });
+      t1.to(element, {
+        scrollTrigger: {
+          trigger: element,
+          start: "top top",
+          end: "bottom+=100% top-=100%",
+          scroller: ".App",
+          scrub: 1,
+          pin: true,
+          refreshPriority: -1,
+        },
+        ease: "none",
+      });
 
-        t1.to(element, {
+      // Vertical Scrolling
+      t1.fromTo(
+        scrollingElement,
+        {
+          y: "0",
+        },
+        {
+          y: "-100%",
+          scrollTrigger: {
+            trigger: scrollingElement,
+            start: "top top",
+            end: "bottom top",
+            scroller: ".App",
+            scrub: 1,
+            refreshPriority: -1,
+          },
+        }
+      );
+
+      // Title horizontal movement animation
+      t1.fromTo(
+        ".new-arrival-title",
+        {
+          x: 0,
+        },
+        {
+          x: 200,
           scrollTrigger: {
             trigger: element,
             start: "top top",
             end: "bottom+=100% top-=100%",
             scroller: ".App",
             scrub: 1,
-            pin: true,
             refreshPriority: -1,
           },
-          ease: "none",
-        });
+        },
+        0 // Start at the same time as other animations
+      );
 
-        // Vertical Scrolling
-        t1.fromTo(
-          scrollingElement,
-          {
-            y: "0",
+      // Text vertical movement animation (right side - goes down)
+      t1.fromTo(
+        ".new-arrival-text",
+        {
+          y: 0,
+        },
+        {
+          y: 400,
+          scrollTrigger: {
+            trigger: element,
+            start: "top top",
+            end: "bottom+=100% top-=100%",
+            scroller: ".App",
+            scrub: 1,
+            refreshPriority: -1,
           },
-          {
-            y: "-100%",
-            scrollTrigger: {
-              trigger: scrollingElement,
-              start: "top top",
-              end: "bottom top",
-              scroller: ".App",
-              scrub: 1,
-              refreshPriority: -1,
-            },
-          }
-        );
+        },
+        0 // Start at the same time as other animations
+      );
 
-        // Title horizontal movement animation
-        t1.fromTo(
-          ".new-arrival-title",
-          {
-            x: 0,
+      // Left text vertical movement animation (left side - goes up)
+      t1.fromTo(
+        ".new-arrival-left-text",
+        {
+          y: 400,
+        },
+        {
+          y: -400,
+          scrollTrigger: {
+            trigger: element,
+            start: "top top",
+            end: "bottom+=100% top-=100%",
+            scroller: ".App",
+            scrub: 1,
+            refreshPriority: -1,
           },
-          {
-            x: 200,
-            scrollTrigger: {
-              trigger: element,
-              start: "top top",
-              end: "bottom+=100% top-=100%",
-              scroller: ".App",
-              scrub: 1,
-              refreshPriority: -1,
-            },
-          },
-          0 // Start at the same time as other animations
-        );
+        },
+        0 // Start at the same time as other animations
+      );
 
-        // Text vertical movement animation (desktop only)
-        if (window.innerWidth > 768) {
-          t1.fromTo(
-            ".new-arrival-text",
-            {
-              y: 0,
-            },
-            {
-              y: 400,
-              scrollTrigger: {
-                trigger: element,
-                start: "top top",
-                end: "bottom+=100% top-=100%",
-                scroller: ".App",
-                scrub: 1,
-                refreshPriority: -1,
-              },
-            },
-            0 // Start at the same time as other animations
-          );
-        }
+      ScrollTrigger.refresh();
+    };
 
+    // Setup with a small delay to ensure elements are ready
+    const timeoutId = setTimeout(setupAnimation, 1000);
+
+    // Handle resize
+    const handleResize = () => {
+      // Refresh animations on resize
+      setTimeout(() => {
         ScrollTrigger.refresh();
-      };
+      }, 100);
+    };
 
-      // Setup with a small delay to ensure elements are ready
-      const timeoutId = setTimeout(setupAnimation, 1000);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
 
-      // Handle resize for mobile orientation changes
-      const handleResize = () => {
-        if (window.innerWidth <= 768) {
-          // Kill all triggers on mobile
-          t1.kill();
-          ScrollTrigger.getAll().forEach(trigger => {
-            if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-              trigger.kill();
-            }
-          });
-        }
-      };
-
-      window.addEventListener('resize', handleResize);
-      window.addEventListener('orientationchange', handleResize);
-
-      return () => {
-        clearTimeout(timeoutId);
-        window.removeEventListener('resize', handleResize);
-        window.removeEventListener('orientationchange', handleResize);
-        t1.kill();
-        ScrollTrigger.getAll().forEach(trigger => {
-          if (trigger.trigger === element || trigger.trigger === scrollingElement) {
-            trigger.kill();
-          }
-        });
-      };
-    }
-
-    // On mobile, just clean up any existing triggers
     return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      t1.kill();
       ScrollTrigger.getAll().forEach(trigger => {
         if (trigger.trigger === element || trigger.trigger === scrollingElement) {
           trigger.kill();
@@ -328,22 +357,46 @@ const NewArrival = () => {
 
   return (
     <Section ref={ref} id="new-arrival">
-      <Overlay>
-        <Container ref={ScrollingRef}>
-          {productImages.map((img, idx) => (
-            <Product key={idx} img={img} title={newArrivals.products[idx] || ""} />
-          ))}
-        </Container>
-      </Overlay>
+      <Container ref={ScrollingRef}>
+        {productImages.map((img, idx) => (
+          <Product key={idx} img={img} title={newArrivals.products[idx] || ""} />
+        ))}
+      </Container>
       <Title className="new-arrival-title">
         {newArrivals.title}
       </Title>
 
-      <Text className="new-arrival-text">
-        {newArrivals.description.split("\n\n").map((para, idx) => (
-          <p key={idx} style={{ marginBottom: '1em' }}>{para}</p>
-        ))}
-      </Text>
+      <LeftContainer className="new-arrival-left-text">
+        <Discount>
+          <LightningBolt /> 25% OFF
+        </Discount>
+        <Description>
+          Buy from our range of 34 different styles of Backpacks.
+        </Description>
+        <CircleButton>
+          <img src={MediaData.image23} alt="User" />
+          <div className="explore-circle">
+            LET'S<br/>EXPLORE<br/>MORE
+            <StarIcon />
+          </div>
+        </CircleButton>
+        <Squiggle style={{ marginTop: '2rem' }} />
+      </LeftContainer>
+
+      <RightContainer className="new-arrival-text">
+        <FourPetals style={{ marginBottom: '1rem' }} />
+        <HandDrawnArrow style={{ marginBottom: '2rem' }} />
+        <ShopNowButton>
+          Shop Now 
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </ShopNowButton>
+        <Description style={{ marginTop: '1rem' }}>
+          Buy from our range of 34 different styles of Backpacks. Discover hundreds more styles and options and all with Free Delivery* options and hassle free Returns at the Back Pack Shop.
+        </Description>
+      </RightContainer>
     </Section>
   );
 };

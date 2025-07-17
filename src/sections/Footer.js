@@ -1,199 +1,254 @@
 import React from "react";
 import styled from "styled-components";
-import { FaGem } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+} from "react-icons/fa";
+import { FiArrowRight, FiMail } from "react-icons/fi";
 
-import { motion } from "framer-motion";
-import { useLocomotiveScroll } from "react-locomotive-scroll";
-import TextData from "../TextData.json";
-
-const Section = styled.section`
-  min-height: 100vh;
-  width: 100vw;
-  margin: 2rem auto 5rem auto;
-
+const Section = styled.footer`
+  width: 100%;
+  background-color: #0b0d17;
+  color: #ffffff;
+  padding: 5rem 8rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  margin: 0 auto;
 
-  background-color: ${(props) => props.theme.body};
-  color: ${(props) => props.theme.text};
+  @media (max-width: 1024px) {
+    padding: 4rem;
+  }
 
-  position: relative;
+  @media (max-width: 768px) {
+    padding: 3rem 2rem;
+  }
 `;
 
-const LogoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+const FooterContainer = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 4rem;
+  width: 100%;
+  margin-bottom: 4rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+`;
+
+const ContactSection = styled.div`
+  h5 {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #d0d0d0;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  h2 {
+    font-size: 2.75rem;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    font-weight: 500;
+  }
+`;
+
+const Button = styled.button`
+  background-color: #ffffff;
+  color: #0b0d17;
+  border: none;
+  border-radius: 50px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
 
   svg {
-    width: 15vw;
-    height: auto;
-    color: ${(props) => props.theme.text};
-
-    @media (max-width: 48em) {
-      width: 20vw;
-    }
-
-    @media (max-width: 30em) {
-      width: 25vw;
-    }
+    transition: transform 0.3s ease;
   }
-  h3 {
-    font-size: ${(props) => props.theme.fontxxl};
-    font-family: "Kaushan Script";
 
-    @media (max-width: 48em) {
-      font-size: ${(props) => props.theme.fontxl};
+  &:hover {
+    background-color: #f0f0f0;
+    svg {
+      transform: translateX(5px);
     }
   }
 `;
 
-const FooterComponent = styled(motion.footer)`
-  width: 80vw;
+const EmailSection = styled.div`
+  margin-top: 2.5rem;
 
-  @media (max-width: 48em) {
-    width: 90vw;
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #d0d0d0;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+`;
+
+const EmailButton = styled.a`
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const LinksSection = styled.div`
+  h5 {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #d0d0d0;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   ul {
     list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    margin: 2rem;
-    margin-top: 4rem;
-    padding: 0 1rem;
-    border-top: 1px solid ${(props) => props.theme.text};
-    border-bottom: 1px solid ${(props) => props.theme.text};
-
-    @media (max-width: 48em) {
-      justify-content: center;
-    }
+    padding: 0;
   }
 
   li {
-    padding: 2rem;
-    font-size: ${(props) => props.theme.fontlg};
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
 
     &:hover {
-      transform: scale(1.1);
-    }
-
-    @media (max-width: 48em) {
-      padding: 1rem;
-      font-size: ${(props) => props.theme.fontmd};
+      text-decoration: underline;
     }
   }
 `;
 
-const Bottom = styled.div`
-  padding: 0.5rem 0;
-  margin: 0 4rem;
-  font-size: ${(props) => props.theme.fontlg};
-
+const BottomBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  a {
-    text-decoration: underline;
-  }
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  color: #a0a0a0;
 
-  @media (max-width: 64em) {
+  @media (max-width: 768px) {
     flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    margin: 0;
-    span {
-      transform: none !important;
-    }
-  }
-
-  @media (max-width: 48em) {
-    font-size: ${(props) => props.theme.fontmd};
+    gap: 1.5rem;
+    text-align: center;
   }
 `;
 
-const GemIcon = styled(FaGem)`
-  font-size: 8rem;
-  color: ${(props) => props.theme.text};
+const SocialIcons = styled.div`
+  display: flex;
+  gap: 1.5rem;
 
-  @media (max-width: 48em) {
-    font-size: 6rem;
-  }
+  a {
+    color: #ffffff;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
 
-  @media (max-width: 30em) {
-    font-size: 4rem;
+    &:hover {
+      color: #a0a0a0;
+    }
   }
 `;
 
 const Footer = () => {
-  const { scroll } = useLocomotiveScroll();
-
-  const handleScroll = (id) => {
-    let elem = document.querySelector(id);
-
-    scroll.scrollTo(elem, {
-      offset: "-100",
-      duration: "2000",
-      easing: [0.25, 0.0, 0.35, 1.0],
-    });
-  };
-
-  const sectionLinks = [
-    { title: TextData.sectionTitles[0], target: "#home" },
-    { title: TextData.sectionTitles[2], target: "#featured-collection" },
-    { title: TextData.sectionTitles[3], target: "#shop" },
-    { title: TextData.sectionTitles[4], target: "#new-arrival" },
-    { title: TextData.sectionTitles[5], target: "#timeline" },
-    { title: TextData.sectionTitles[6], target: "#testimonials" },
-    { title: TextData.sectionTitles[7], target: "#faq" }
-  ];
-
   return (
     <Section>
-      <LogoContainer>
-        <GemIcon data-scroll data-scroll-speed="2" />
-        <h3 data-scroll data-scroll-speed="-1">
-          {TextData.brand.name}
-        </h3>
-      </LogoContainer>
-      <FooterComponent
-        initial={{ y: "-400px" }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: false }}
-        transition={{
-          duration: 1.5,
-        }}
-      >
-        <ul>
-          {sectionLinks.map((section) => (
-            <li key={section.title} onClick={() => handleScroll(section.target)}>{section.title}</li>
-          ))}
-        </ul>
-        <Bottom>
-          <span
-            data-scroll
-            data-scroll-speed="2"
-            data-scroll-direction="horizontal"
-          >
-            &copy; {new Date().getFullYear()}. {TextData.footer.copyrightText}
-          </span>
-          <span
-            data-scroll
-            data-scroll-speed="-2"
-            data-scroll-direction="horizontal"
-          >
-            {TextData.footer.brandText}
-          </span>
-        </Bottom>
-      </FooterComponent>
+      <FooterContainer>
+        <ContactSection>
+          <h5>CONTACT US</h5>
+          <h2>
+            Let's Discuss Your
+            <br />
+            Vision. With Us
+          </h2>
+          <Button>
+            Schedule a call now <FiArrowRight />
+          </Button>
+          <EmailSection>
+            <h6>OR EMAIL US AT</h6>
+            <EmailButton href="mailto:hey@xavierdubois.fr">
+              hey@xavierdubois.fr <FiMail />
+            </EmailButton>
+          </EmailSection>
+        </ContactSection>
+        <LinksSection>
+          <h5>QUICK LINKS</h5>
+          <ul>
+            <li>
+              <a href="#home">Home</a>
+            </li>
+            <li>
+              <a href="#case-studies">Case Studies</a>
+            </li>
+            <li>
+              <a href="#gallery">Gallery</a>
+            </li>
+            <li>
+              <a href="#blogs">Blogs</a>
+            </li>
+            <li>
+              <a href="#about">About Me</a>
+            </li>
+          </ul>
+        </LinksSection>
+        <LinksSection>
+          <h5>INFORMATION</h5>
+          <ul>
+            <li>
+              <a href="#terms">Terms of Service</a>
+            </li>
+            <li>
+              <a href="#privacy">Privacy Policy</a>
+            </li>
+            <li>
+              <a href="#cookies">Cookies Settings</a>
+            </li>
+          </ul>
+        </LinksSection>
+      </FooterContainer>
+      <BottomBar>
+        <span>© XAVIERDUBOIS 2024. ALL RIGHTS RESERVED.</span>
+        <SocialIcons>
+          <a href="#" aria-label="Facebook">
+            <FaFacebookF />
+          </a>
+          <a href="#" aria-label="Twitter">
+            <FaTwitter />
+          </a>
+          <a href="#" aria-label="Instagram">
+            <FaInstagram />
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <FaLinkedinIn />
+          </a>
+        </SocialIcons>
+      </BottomBar>
     </Section>
   );
 };

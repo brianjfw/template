@@ -8,6 +8,7 @@ const GlobalStyles = createGlobalStyle`
 *,*::before,*::after{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 html {
@@ -15,21 +16,27 @@ html {
     -webkit-overflow-scrolling: touch;
     /* Prevent horizontal scroll */
     overflow-x: hidden;
+    /* Ensure proper viewport behavior */
+    width: 100%;
+    height: 100%;
 }
 
 body{
     font-family:"Sirin Stencil";
     overflow-x: hidden;
-    background: ${adaptive.body};
+    background: #ffffff;
     color: ${adaptive.text};
     transition: background-color 0.3s ease, color 0.3s ease;
     /* Ensure proper touch scrolling */
     -webkit-overflow-scrolling: touch;
     /* Prevent pull-to-refresh on mobile */
     overscroll-behavior: none;
+    /* Ensure proper width */
+    width: 100%;
+    min-height: 100vh;
 }
 
-/* Fix for Locomotive Scroll on mobile */
+/* Fix for Locomotive Scroll */
 [data-scroll-container] {
     /* Enable momentum scrolling */
     -webkit-overflow-scrolling: touch;
@@ -37,13 +44,15 @@ body{
     touch-action: pan-y;
     /* Prevent horizontal scroll */
     overflow-x: hidden;
-    /* Ensure proper mobile scrolling */
+    /* Ensure proper scrolling */
     overscroll-behavior: none;
     /* Prevent pull-to-refresh */
     overscroll-behavior-y: none;
+    /* Ensure proper width */
+    width: 100%;
 }
 
-/* Additional mobile scroll fixes */
+/* Additional scroll fixes */
 .App {
     /* Enable momentum scrolling */
     -webkit-overflow-scrolling: touch;
@@ -51,37 +60,29 @@ body{
     touch-action: pan-y;
     /* Prevent horizontal scroll */
     overflow-x: hidden;
-    /* Ensure proper mobile scrolling */
+    /* Ensure proper scrolling */
     overscroll-behavior: none;
     /* Prevent pull-to-refresh */
     overscroll-behavior-y: none;
-}
-
-/* Force mobile scroll behavior */
-@media (max-width: 768px) {
-  [data-scroll-container] {
-    /* Ensure natural scroll momentum */
-    -webkit-overflow-scrolling: touch !important;
-    /* Allow vertical scrolling only */
-    touch-action: pan-y !important;
-    /* Prevent any scroll interference */
-    overscroll-behavior: none !important;
-  }
-  
-  .App {
-    /* Ensure natural scroll momentum */
-    -webkit-overflow-scrolling: touch !important;
-    /* Allow vertical scrolling only */
-    touch-action: pan-y !important;
-    /* Prevent any scroll interference */
-    overscroll-behavior: none !important;
-  }
+    /* Ensure proper width */
+    width: 100%;
 }
 
 /* Ensure smooth scrolling on all devices */
 * {
     /* Enable momentum scrolling */
     -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile notice styles */
+@media (max-width: 767px) {
+    body {
+        overflow: hidden;
+    }
+    
+    html {
+        overflow: hidden;
+    }
 }
 
 h1,h2,h3,h4,h5,h6{

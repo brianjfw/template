@@ -14,7 +14,7 @@ const VideoContainer = styled.section`
   z-index: 0;
   overflow: hidden;
 
-  /* Theme-adaptive overlay that sits above the video but below foreground content */
+  /* Dark overlay that sits above the video but below foreground content */
   &::after {
     content: "";
     position: absolute;
@@ -22,7 +22,7 @@ const VideoContainer = styled.section`
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(${(props) => props.theme.bodyRgba}, 0.4);
+    background: rgba(0, 0, 0, 0.4);
     pointer-events: none; /* Ensure clicks pass through */
     z-index: 2;
   }
@@ -112,7 +112,6 @@ const Title = styled(motion.div)`
   h2 {
     font-family: "Sirin Stencil";
     font-size: ${(props) => props.theme.fontlg};
-    text-shadow: 1px 1px 1px ${(props) => props.theme.body};
     font-weight: 300;
     text-transform: capitalize;
 
@@ -255,6 +254,7 @@ const CoverVideo = () => {
 
   const brandName = TextData.brand.name;
   const brandTagline = TextData.brand.tagline;
+  const brandLocation = TextData.brand.location;
 
   const uniqueVideos = useMemo(() => {
     const localVideos = MediaData.videos.filter(v => v.link.startsWith('assets/'));
@@ -374,7 +374,7 @@ const CoverVideo = () => {
           data-scroll-speed="2"
         >
           <FaMapPin />
-          <span>Vancouver, BC</span>
+          <span>{brandLocation}</span>
         </LocationTag>
         <div className="words-row">
           {[...brandName].map((char, charIdx) => {

@@ -11,15 +11,41 @@ import FeaturedCollection from "./sections/FeaturedCollection";
 import Shop from "./sections/Shop";
 import ScrollTriggerProxy from './components/ScrollTriggerProxy';
 import Banner from "./sections/Banner";
-import NewArrival from "./sections/NewArrival";
+import Movement from "./sections/Movement";
 import Testimonials from "./sections/Testimonials";
-import FAQ from "./sections/FAQ";
-import Timeline from "./sections/Timeline";
-import Footer from './sections/Footer';
+import Testimonials2 from "./sections/Testimonials2";
+import Logistics from "./sections/Logistics";
+import Pandemics from "./sections/Pandemics";
+import MobileNotice from './components/MobileNotice';
+import useMobileDetection from './hooks/useMobileDetection';
+
+// Styled component for full-width sections
+import styled from "styled-components";
+
+const FullWidthSection = styled.div`
+  background: #fff;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  position: relative;
+  overflow: hidden;
+`;
 
 function App() {
   const containerRef = useRef(null);
+  const isMobile = useMobileDetection();
 
+  // If on mobile, show the mobile notice
+  if (isMobile) {
+    return (
+      <>
+        <GlobalStyles />
+        <MobileNotice />
+      </>
+    );
+  }
+
+  // Desktop view - show the full application
   return (
     <>
       <GlobalStyles />
@@ -29,25 +55,8 @@ function App() {
             smooth: true,
             lerp: 0.05,
             multiplier: 0.8,
-            smartphone: { 
-              smooth: true,
-              lerp: 0.05,
-              multiplier: 0.8,
-              touchMultiplier: 3,
-              breakpoint: 768,
-              // Disable complex animations on mobile
-              smoothMobile: true
-            },
-            tablet: { 
-              smooth: true,
-              lerp: 0.05,
-              multiplier: 0.8,
-              touchMultiplier: 3,
-              breakpoint: 1024
-            },
             reloadOnContextChange: true,
             touchMultiplier: 3,
-            smoothMobile: true,
             getDirection: true,
             getSpeed: true,
             class: "is-revealed"
@@ -58,20 +67,20 @@ function App() {
           <ScrollTriggerProxy />
           <main className='App' data-scroll-container ref={containerRef}>
             <Home />
-            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
+            <FullWidthSection>
               <FeaturedCollection />
-            </div>
-            <Shop />
-            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
+            </FullWidthSection>
+            <FullWidthSection>
+              <Shop />
+            </FullWidthSection>
+            <Logistics />
+            <FullWidthSection>
               <Banner />
-            </div>
-            <div style={{ background: '#fff', width: '100vw', position: 'relative', left: '50%', right: '50%', marginLeft: '-50vw', marginRight: '-50vw' }}>
-              <NewArrival />
-            </div>
+            </FullWidthSection>
+            <Testimonials2 />
+            <Movement />
             <Testimonials />
-            <Timeline />
-            <FAQ />
-            <Footer />
+            <Pandemics />
           </main>
         </LocomotiveScrollProvider>
       </ThemeProvider>
