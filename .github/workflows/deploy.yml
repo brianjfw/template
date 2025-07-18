@@ -1,9 +1,13 @@
 name: Build & Deploy to Pages
 
 on:
-  push:
-    branches: [main]
+  # Remove automatic push trigger to prevent conflicts during automation
+  # push:
+  #   branches: [main]
   workflow_dispatch:
+  # Add a custom event that the automation can trigger
+  repository_dispatch:
+    types: [deploy-mockup]
 
 jobs:
   build:
@@ -44,4 +48,7 @@ jobs:
           publish_dir: ./build
           publish_branch: gh-pages
           force_orphan: true
-          enable_jekyll: false 
+          enable_jekyll: false
+          # Add these options for better reliability
+          force: true
+          nojekyll: true 
