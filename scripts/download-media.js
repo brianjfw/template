@@ -64,20 +64,29 @@ const processMedia = async () => {
   const newMediaData = JSON.parse(JSON.stringify(mediaData));
   const downloadedVideos = [];
 
-  // Process Videos
+  // Process Videos - Fixed to extract video ID from URL
   let videoCounter = 1;
   for (const video of newMediaData.videos) {
     try {
-      console.log(`Fetching video details for ID: ${video.id}`);
-      const apiResponse = await client.videos.show({ id: video.id });
+      // Extract the actual video ID from the URL
+      const urlMatch = video.link.match(/video-files\/(\d+)\//);
+      if (!urlMatch) {
+        console.warn(`Could not extract video ID from URL: ${video.link}. Skipping.`);
+        continue;
+      }
+      const videoId = urlMatch[1];
+      
+      console.log(`Fetching video details for ID: ${videoId}`);
+      const apiResponse = await client.videos.show({ id: videoId });
 
+      // Find the matching video file based on the original file's quality and dimensions
       let videoFile = apiResponse.video_files.find(
-        (vf) => vf.quality === video.quality
+        (vf) => vf.quality === video.quality && vf.width === video.width && vf.height === video.height
       );
 
       if (!videoFile) {
         console.warn(
-          `Could not find matching video quality for video ID ${video.id}. Selecting best available.`
+          `Could not find matching video quality for video ID ${videoId}. Selecting best available.`
         );
         videoFile = apiResponse.video_files.sort((a, b) => b.width - a.width)[0];
       }
@@ -91,15 +100,17 @@ const processMedia = async () => {
         console.log(`Downloading video: ${filename} from authorized URL.`);
         await downloadFile(downloadUrl, filepath);
       }
+      
+      // Update the video object with the local path and preserve original metadata
       video.link = `assets/${filename}`;
       downloadedVideos.push(video);
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        console.warn(`Video with ID ${video.id} not found. Skipping.`);
+        console.warn(`Video with ID ${videoId} not found. Skipping.`);
         continue;
       }
       console.error(
-        `Failed to process video ID ${video.id}:`,
+        `Failed to process video ID ${videoId}:`,
         error.message
       );
     }
