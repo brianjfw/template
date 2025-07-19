@@ -32,6 +32,14 @@ jobs:
         env:
           PEXELS_API_KEY: OebYoKnvEJ44kiqzubrsq9x4G8SpX7o3aVvFXnyY2eUrPcNsZSW1OdoS
 
+      - name: Commit updated MediaData.json
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/MediaData.json
+          git commit -m "Update MediaData.json with local asset paths" || echo "No changes to commit"
+          git push
+
       - name: Inject correct homepage and build without failing on warnings
         env:
           OWNER: ${{ github.repository_owner }}
