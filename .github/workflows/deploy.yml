@@ -38,7 +38,9 @@ jobs:
           git config --local user.name "GitHub Action"
           git add src/MediaData.json
           git commit -m "Update MediaData.json with local asset paths" || echo "No changes to commit"
-          git push
+          # Handle potential push conflicts by pulling latest changes first
+          git pull origin main --rebase --strategy-option=theirs || echo "Pull failed, continuing"
+          git push origin main || echo "Push failed, but continuing with build"
 
       - name: Inject correct homepage and build without failing on warnings
         env:
