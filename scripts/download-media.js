@@ -64,13 +64,21 @@ const processMedia = async () => {
   const newMediaData = JSON.parse(JSON.stringify(mediaData));
   const downloadedVideos = [];
 
-  // Process Videos - Fixed to extract video ID from URL
+  // Process Videos - Handle both string URLs and video objects
   let videoCounter = 1;
   for (const video of newMediaData.videos) {
+    // Handle both string URLs and video objects
+    const videoUrl = typeof video === 'string' ? video : video.link;
+    
+    if (!videoUrl || typeof videoUrl !== 'string') {
+      console.warn(`Invalid video URL: ${videoUrl}. Skipping.`);
+      continue;
+    }
+    
     // Extract the actual video ID from the URL
-    const urlMatch = video.link.match(/video-files\/(\d+)\//);
+    const urlMatch = videoUrl.match(/video-files\/(\d+)\//);
     if (!urlMatch) {
-      console.warn(`Could not extract video ID from URL: ${video.link}. Skipping.`);
+      console.warn(`Could not extract video ID from URL: ${videoUrl}. Skipping.`);
       continue;
     }
     const videoId = urlMatch[1];
@@ -79,16 +87,17 @@ const processMedia = async () => {
       console.log(`Fetching video details for ID: ${videoId}`);
       const apiResponse = await client.videos.show({ id: videoId });
 
-      // Find the matching video file based on the original file's quality and dimensions
-      let videoFile = apiResponse.video_files.find(
-        (vf) => vf.quality === video.quality && vf.width === video.width && vf.height === video.height
-      );
-
-      if (!videoFile) {
-        console.warn(
-          `Could not find matching video quality for video ID ${videoId}. Selecting best available.`
+      // Find the best video file (highest quality)
+      let videoFile = apiResponse.video_files.sort((a, b) => b.width - a.width)[0];
+      
+      // If we have a video object with specific quality requirements, try to match them
+      if (typeof video === 'object' && video.quality && video.width && video.height) {
+        const matchingFile = apiResponse.video_files.find(
+          (vf) => vf.quality === video.quality && vf.width === video.width && vf.height === video.height
         );
-        videoFile = apiResponse.video_files.sort((a, b) => b.width - a.width)[0];
+        if (matchingFile) {
+          videoFile = matchingFile;
+        }
       }
 
       const downloadUrl = videoFile.link;
@@ -101,9 +110,13 @@ const processMedia = async () => {
         await downloadFile(downloadUrl, filepath);
       }
       
-      // Update the video object with the local path and preserve original metadata
-      video.link = `assets/${filename}`;
-      downloadedVideos.push(video);
+      // Update the video object with the local path
+      if (typeof video === 'string') {
+        downloadedVideos.push(`assets/${filename}`);
+      } else {
+        video.link = `assets/${filename}`;
+        downloadedVideos.push(video);
+      }
     } catch (error) {
       if (error.response && error.response.status === 404) {
         console.warn(`Video with ID ${videoId} not found. Skipping.`);
