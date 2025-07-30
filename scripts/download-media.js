@@ -67,15 +67,15 @@ const processMedia = async () => {
   // Process Videos - Fixed to extract video ID from URL
   let videoCounter = 1;
   for (const video of newMediaData.videos) {
+    // Extract the actual video ID from the URL
+    const urlMatch = video.link.match(/video-files\/(\d+)\//);
+    if (!urlMatch) {
+      console.warn(`Could not extract video ID from URL: ${video.link}. Skipping.`);
+      continue;
+    }
+    const videoId = urlMatch[1];
+    
     try {
-      // Extract the actual video ID from the URL
-      const urlMatch = video.link.match(/video-files\/(\d+)\//);
-      if (!urlMatch) {
-        console.warn(`Could not extract video ID from URL: ${video.link}. Skipping.`);
-        continue;
-      }
-      const videoId = urlMatch[1];
-      
       console.log(`Fetching video details for ID: ${videoId}`);
       const apiResponse = await client.videos.show({ id: videoId });
 
